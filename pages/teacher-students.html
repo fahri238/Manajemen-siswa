@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Data Siswa - Siswa Manager</title>
+
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+      rel="stylesheet"
+    />
+
+    <link rel="stylesheet" href="../css/style.css" />
+    <link rel="stylesheet" href="../css/tables.css" />
+    <link rel="stylesheet" href="../css/notifications.css" />
+    <link rel="stylesheet" href="../css/forms.css" />
+    <link rel="stylesheet" href="../css/responsive.css" />
+
+    <link rel="stylesheet" href="../css/teacher.css" />
+  </head>
+  <body>
+    <div class="app-container">
+      <button class="btn-menu-mobile" onclick="toggleSidebar()">
+        <i class="fa-solid fa-bars"></i>
+      </button>
+      <aside class="sidebar">
+        <div class="sidebar-header">
+          <i class="fa-solid fa-chalkboard-user logo-icon"></i>
+          <h2>GURU AREA</h2>
+        </div>
+        <nav class="sidebar-menu">
+          <a href="teacher-dashboard.html" class="menu-item">
+            <i class="fa-solid fa-gauge-high icon"></i> Dashboard
+          </a>
+          <a href="teacher-schedule.html" class="menu-item">
+            <i class="fa-solid fa-calendar-days icon"></i> Jadwal Mengajar
+          </a>
+          <div
+            style="
+              margin: 10px 20px;
+              font-size: 12px;
+              color: rgba(255, 255, 255, 0.5);
+              text-transform: uppercase;
+              font-weight: bold;
+            "
+          >
+            Wali Kelas
+          </div>
+          <a href="teacher-reports.html" class="menu-item">
+            <i class="fa-solid fa-chart-pie icon"></i> Laporan Kelas
+          </a>
+          <a href="teacher-attendance.html" class="menu-item">
+            <i class="fa-solid fa-clipboard-user icon"></i> Absensi Harian
+          </a>
+          <a href="#" class="menu-item active">
+            <i class="fa-solid fa-user-graduate icon"></i> Data Siswa
+          </a>
+          <a href="teacher-points.html" class="menu-item">
+            <i class="fa-solid fa-star icon"></i> Input Poin
+          </a>
+        </nav>
+        <div class="sidebar-footer">
+          <a href="#" class="menu-item logout"
+            ><i class="fa-solid fa-right-from-bracket icon"></i> Keluar</a
+          >
+        </div>
+      </aside>
+
+      <main class="main-content">
+        <header class="top-bar">
+          <div>
+            <h1>Data Siswa</h1>
+            <p class="subtitle">
+              Kelola informasi siswa, kelas, dan status akademik.
+            </p>
+          </div>
+
+          <div class="action-bar">
+            <div class="search-box">
+              <i class="fa-solid fa-magnifying-glass"></i>
+              <input type="text" placeholder="Cari nama atau NIS..." />
+            </div>
+            <button class="btn-primary" onclick="openAddStudentModal()">
+              <i class="fa-solid fa-plus"></i> Tambah Siswa
+            </button>
+          </div>
+        </header>
+
+        <div class="table-container">
+          <table class="premium-table" id="students-table">
+            <thead>
+              <tr>
+                <th>Siswa</th>
+                <th>NIS/NISN</th>
+                <th>Kelas</th>
+                <th>Status</th>
+                <th>Poin</th>
+                <th style="text-align: right">Aksi</th>
+              </tr>
+            </thead>
+            <tbody id="student-list-body"></tbody>
+          </table>
+
+          <div class="pagination">
+            <span>Menampilkan siswa</span>
+            <div class="page-nav">
+              <button disabled><i class="fa-solid fa-chevron-left"></i></button>
+              <button class="active">1</button>
+              <button>2</button>
+              <button>3</button>
+              <button><i class="fa-solid fa-chevron-right"></i></button>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+
+    <div class="modal-overlay" id="modal-add-student">
+      <div class="modal-box">
+        <div class="modal-header">
+          <h3>Tambah Siswa Baru</h3>
+          <button class="btn-close" onclick="closeModal()">
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+        </div>
+
+        <form id="form-add-student" onsubmit="handleSaveStudent(event)">
+          <input type="hidden" id="student-id" name="id" value="" />
+          <div class="modal-box">
+            <div class="modal-header">
+              <h3 id="modal-title">Tambah Siswa Baru</h3>
+              <button class="btn-close" onclick="closeModal()">
+                <i class="fa-solid fa-xmark"></i>
+              </button>
+            </div>
+
+            <form
+              id="form-add-student"
+              onsubmit="window.handleSaveStudent(event)"
+            >
+              <input type="hidden" id="student-id" name="id" value="" />
+
+              <div class="modal-body">
+                <div class="form-group">
+                  <label>Nama Lengkap</label>
+                  <input
+                    type="text"
+                    id="nama-lengkap"
+                    class="form-control"
+                    placeholder="Contoh: Budi Santoso"
+                    required
+                  />
+                </div>
+
+                <div class="form-row">
+                  <div class="form-group">
+                    <label>NIS / NISN</label>
+                    <input
+                      type="number"
+                      id="nis"
+                      class="form-control"
+                      placeholder="10xxx"
+                      required
+                    />
+                  </div>
+                  <div class="form-group">
+                    <label>Kelas</label>
+                    <select id="kelas-select" class="form-control" required>
+                      <option value="">-- Pilih Kelas --</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label>Jenis Kelamin</label>
+                  <div class="radio-group">
+                    <label class="radio-item">
+                      <input type="radio" name="gender" value="L" checked />
+                      Laki-laki
+                    </label>
+                    <label class="radio-item">
+                      <input type="radio" name="gender" value="P" /> Perempuan
+                    </label>
+                  </div>
+                </div>
+              </div>
+
+              <div class="modal-footer">
+                <button
+                  type="button"
+                  class="btn-secondary"
+                  onclick="closeModal()"
+                >
+                  Batal
+                </button>
+                <button type="submit" class="btn-primary">Simpan Data</button>
+              </div>
+            </form>
+          </div>
+
+          <div class="modal-footer">
+            <button type="button" class="btn-secondary" onclick="closeModal()">
+              Batal
+            </button>
+            <button type="submit" class="btn-primary">Simpan Data</button>
+          </div>
+        </form>
+      </div>
+    </div>
+    <script type="module" src="../js/app.js"></script>
+    <script src="../js/utils/notifications.js"></script>
+    <script src="../js/views/pages/students/list.js"></script>
+    <script src="../js/views/pages/students/students-dashboard.js"></script>
+    <script src="../js/views/pages/students/teachers-list.js"></script>
+  </body>
+</html>

@@ -1,0 +1,83 @@
+/* --- RESPONSIVE.CSS --- */
+
+/* BREAKPOINT: Tablet & HP (Layar < 1024px) */
+@media (max-width: 1024px) {
+  /* 1. SIDEBAR SEMBUNYI OTOMATIS */
+  .sidebar {
+    position: fixed;
+    left: -260px; /* Sembunyikan ke kiri */
+    top: 0;
+    height: 100vh;
+    z-index: 1000;
+    transition: left 0.3s ease;
+    box-shadow: 5px 0 15px rgba(0, 0, 0, 0.1);
+  }
+
+  /* Class untuk memunculkan sidebar (toggle) */
+  .sidebar.show {
+    left: 0;
+  }
+
+  /* Overlay Hitam saat sidebar muncul */
+  .sidebar-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 999;
+  }
+  .sidebar-overlay.show {
+    display: block;
+  }
+
+  /* 2. MAIN CONTENT MELEBAR */
+  .main-content {
+    margin-left: 0; /* Tidak ada margin kiri lagi */
+    width: 100%;
+  }
+
+  /* 3. TOMBOL HAMBURGER (Menu) */
+  .top-bar {
+    padding-left: 60px; /* Beri ruang untuk tombol menu */
+  }
+}
+
+/* BREAKPOINT: HP Kecil (Layar < 768px) */
+@media (max-width: 768px) {
+  /* Tabel Scrollable */
+  .table-container {
+    overflow-x: auto; /* Scroll samping */
+  }
+
+  .premium-table {
+    min-width: 600px; /* Paksa tabel lebar agar tidak penyet */
+  }
+
+  /* Header Stack (Atas-Bawah) */
+  .action-bar {
+    flex-direction: column;
+    gap: 10px;
+    align-items: stretch;
+  }
+
+  .search-box {
+    width: 100%;
+  }
+
+  .search-box input {
+    width: 100%;
+  }
+
+  .btn-primary {
+    width: 100%;
+    justify-content: center;
+  }
+
+  /* Grid Dashboard jadi 1 kolom */
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+}

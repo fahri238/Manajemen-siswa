@@ -1,0 +1,68 @@
+/* --- TEACHER.CSS (Theme Override) --- */
+
+/* 1. UBAH VARIABEL WARNA GLOBAL */
+:root {
+    --primary-color: #0F766E;  /* Teal Gelap (Utama) */
+    --secondary-color: #134E4A; /* Teal Lebih Gelap (Hover) */
+    --sidebar-bg-top: #0F766E;
+    --sidebar-bg-bottom: #115E59;
+}
+
+/* 2. OVERRIDE SIDEBAR (Ganti Biru jadi Hijau) */
+.sidebar {
+    background: linear-gradient(
+        180deg, 
+        var(--sidebar-bg-top) 0%, 
+        var(--sidebar-bg-bottom) 100%
+    );
+    box-shadow: 4px 0 10px rgba(15, 118, 110, 0.2);
+}
+
+/* 3. LOGO & ICON DI SIDEBAR */
+.logo-icon {
+    color: #99F6E4; /* Teal muda banget biar kontras */
+}
+.menu-item {
+    color: #CCFBF1; /* Teks menu agak putih kehijauan */
+}
+.menu-item:hover, 
+.menu-item.active {
+    background-color: rgba(255, 255, 255, 0.15);
+    color: #FFFFFF;
+    border-left: 3px solid #5EEAD4; /* Aksen garis kiri saat aktif */
+}
+
+/* 4. TOMBOL MENU MOBILE */
+.btn-menu-mobile {
+    background-color: var(--primary-color);
+    box-shadow: 0 4px 10px rgba(15, 118, 110, 0.3);
+}
+
+/* 5. OVERRIDE TOMBOL PRIMARY (Agar senada) */
+.btn-primary {
+    background-color: var(--primary-color);
+}
+.btn-primary:hover {
+    background-color: var(--secondary-color);
+}
+
+/* 6. LOGIKA MENYEMBUNYIKAN FITUR ADMIN (PENTING!) */
+
+/* Sembunyikan kolom aksi (Edit/Hapus) di tabel */
+.premium-table th:last-child, 
+.premium-table td:last-child {
+    display: none;
+}
+
+/* Sembunyikan tombol "Tambah Siswa" atau tombol aksi admin lainnya */
+/* Kita targetkan tombol yang punya onclick membuka modal */
+button[onclick^="openAdd"], 
+.btn-add-hidden {
+    display: none !important;
+}
+
+/* 7. MODIFIKASI BADGE/STATUS BIAR LEBIH SOFT */
+.badge.active {
+    background-color: #CCFBF1;
+    color: #0F766E;
+}

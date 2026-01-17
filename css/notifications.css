@@ -1,0 +1,168 @@
+/* --- NOTIFICATIONS.CSS --- */
+
+/* 1. CONTAINER (Wadah Notifikasi) */
+#toast-container {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* 2. ITEM TOAST (Kotak Pesannya) */
+.toast {
+  min-width: 300px;
+  background: white;
+  padding: 16px 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  animation: slideInRight 0.3s ease forwards;
+  border-left: 5px solid #ccc; /* Default border */
+  position: relative;
+  overflow: hidden;
+}
+
+/* Garis durasi waktu di bawah (opsional, biar keren) */
+.toast::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  height: 3px;
+  background: rgba(0, 0, 0, 0.1);
+  width: 100%;
+  animation: timeOut 3s linear forwards;
+}
+
+/* Variasi Warna */
+.toast.success {
+  border-left-color: #10b981;
+} /* Hijau */
+.toast.success i {
+  color: #10b981;
+}
+
+.toast.error {
+  border-left-color: #ef4444;
+} /* Merah */
+.toast.error i {
+  color: #ef4444;
+}
+
+.toast.info {
+  border-left-color: #3b82f6;
+} /* Biru */
+.toast.info i {
+  color: #3b82f6;
+}
+
+/* Teks */
+.toast-message {
+  font-size: 14px;
+  font-weight: 500;
+  color: #374151;
+}
+
+/* Animasi Masuk */
+@keyframes slideInRight {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+/* Animasi Keluar (ditambahkan lewat JS nanti) */
+.toast.hide {
+  animation: slideOutRight 0.3s ease forwards;
+}
+
+@keyframes slideOutRight {
+  to {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+}
+
+@keyframes timeOut {
+  from {
+    width: 100%;
+  }
+  to {
+    width: 0%;
+  }
+}
+
+/* --- 3. CUSTOM CONFIRM MODAL (Pengganti confirm() browser) --- */
+.confirm-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(2px);
+  z-index: 10000;
+  display: none;
+  align-items: center;
+  justify-content: center;
+}
+.confirm-overlay.show {
+  display: flex;
+  animation: fadeIn 0.2s;
+}
+
+.confirm-box {
+  background: white;
+  padding: 25px;
+  width: 400px;
+  border-radius: 12px;
+  text-align: center;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+}
+.confirm-icon {
+  font-size: 40px;
+  color: #f59e0b;
+  margin-bottom: 15px;
+}
+.confirm-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: #1f2937;
+  margin-bottom: 5px;
+}
+.confirm-desc {
+  font-size: 14px;
+  color: #6b7280;
+  margin-bottom: 25px;
+}
+
+.confirm-actions {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+}
+.btn-confirm-yes {
+  background: #ef4444;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+.btn-confirm-cancel {
+  background: #e5e7eb;
+  color: #374151;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+}

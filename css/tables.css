@@ -1,0 +1,239 @@
+/* --- TABLES.CSS (Premium Table Styles) --- */
+
+/* Action Bar di atas tabel */
+.action-bar {
+  display: flex;
+  gap: 15px;
+}
+
+.search-box {
+  position: relative;
+}
+.search-box input {
+  padding: 10px 15px 10px 40px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  width: 250px;
+  font-size: 14px;
+  outline: none;
+  transition: 0.3s;
+}
+.search-box input:focus {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+}
+.search-box i {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #9ca3af;
+}
+
+.btn-primary {
+  background-color: var(--primary-color);
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: 0.2s;
+}
+.btn-primary:hover {
+  background-color: var(--secondary-color);
+}
+
+/* --- STYLE TABEL UTAMA --- */
+.table-container {
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+  overflow: hidden; /* Agar sudut tabel tumpul */
+  border: 1px solid rgba(0, 0, 0, 0.03);
+}
+
+.premium-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 600px;
+}
+
+.premium-table thead {
+  background-color: #f9fafb;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.premium-table th {
+  text-align: left;
+  padding: 18px 25px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.premium-table td {
+  padding: 18px 25px;
+  vertical-align: middle;
+  border-bottom: 1px solid #f3f4f6;
+  color: var(--text-dark);
+  font-size: 14px;
+
+  line-height: 1.6;
+}
+
+.premium-table tr:last-child td {
+  border-bottom: none;
+}
+.premium-table tr:hover {
+  background-color: #f9fafb;
+}
+
+/* --- KOMPONEN DALAM TABEL --- */
+
+/* 1. Info Siswa dengan Avatar */
+.student-info {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+.avatar-circle {
+  width: 40px;
+  height: 40px;
+  background-color: #e0e7ff;
+  color: var(--primary-color);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 14px;
+}
+.student-detail h4 {
+  font-size: 14px;
+  font-weight: 600;
+  color: #111827;
+}
+.student-detail span {
+  font-size: 12px;
+  color: #6b7280;
+}
+
+/* 2. Badge Status */
+.badge {
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+}
+.badge.active {
+  background-color: #d1fae5;
+  color: #059669;
+}
+.badge.inactive {
+  background-color: #f3f4f6;
+  color: #6b7280;
+}
+.badge.warning {
+  background-color: #fef3c7;
+  color: #d97706;
+}
+
+/* 3. Action Buttons */
+.action-buttons {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+}
+.btn-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  border: 1px solid #e5e7eb;
+  background: white;
+  color: #6b7280;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: 0.2s;
+}
+.btn-icon:hover {
+  background-color: #f3f4f6;
+  color: var(--primary-color);
+}
+.btn-icon.delete:hover {
+  background-color: #fee2e2;
+  color: #dc2626;
+  border-color: #fca5a5;
+}
+
+/* Pagination Styling */
+.pagination {
+  padding: 20px 25px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 13px;
+  color: var(--text-muted);
+}
+.page-nav button {
+  padding: 5px 10px;
+  border: 1px solid #e5e7eb;
+  background: white;
+  border-radius: 6px;
+  cursor: pointer;
+  margin-left: 5px;
+}
+.page-nav button.active {
+  background: var(--primary-color);
+  color: white;
+  border-color: var(--primary-color);
+}
+
+.btn-action {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  border: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-right: 5px;
+  color: white;
+  font-size: 14px;
+}
+
+/* Tombol Edit (Warna Biru/Ungu) */
+.btn-action.edit {
+  background-color: #3b82f6; /* Biru */
+  box-shadow: 0 2px 4px rgba(59, 130, 246, 0.3);
+}
+
+.btn-action.edit:hover {
+  background-color: #2563eb;
+  transform: translateY(-2px);
+}
+
+/* Tombol Hapus (Warna Merah) */
+.btn-action.delete {
+  background-color: #ef4444; /* Merah */
+  box-shadow: 0 2px 4px rgba(239, 68, 68, 0.3);
+}
+
+.btn-action.delete:hover {
+  background-color: #dc2626;
+  transform: translateY(-2px);
+}
+
+/* Perbaiki posisi ikon di tengah */
+.btn-action i {
+  pointer-events: none; /* Agar klik kena button, bukan icon */
+}

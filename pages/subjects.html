@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Mata Pelajaran - Siswa Manager</title>
+
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="../css/style.css" />
+    <link rel="stylesheet" href="../css/tables.css" />
+    <link rel="stylesheet" href="../css/forms.css" />
+    <link rel="stylesheet" href="../css/components/modal.css" />
+    <link rel="stylesheet" href="../css/notifications.css" />
+    <link rel="stylesheet" href="../css/responsive.css" />
+  </head>
+  <body>
+    <div class="sidebar-overlay" onclick="toggleSidebar()"></div>
+
+    <div class="app-container">
+      <aside class="sidebar">
+        <div class="sidebar-header">
+          <i class="fa-solid fa-school-flag logo-icon"></i>
+          <h2>SISWA MANAGER</h2>
+        </div>
+        <nav class="sidebar-menu">
+          <a href="../dashboard.html" class="menu-item">
+            <i class="fa-solid fa-gauge-high icon"></i> Dashboard
+          </a>
+          <a href="classes.html" class="menu-item ">
+            <i class="fa-solid fa-school icon"></i> Data Kelas
+          </a>
+          <a href="schedules.html" class="menu-item">
+            <i class="fa-solid fa-calendar-days icon"></i> Jadwal Pelajaran
+          </a>
+          <a href="#" class="menu-item active">
+            <i class="fa-solid fa-book icon"></i> Mata Pelajaran
+          </a>
+          <a href="students.html" class="menu-item">
+            <i class="fa-solid fa-user-graduate icon"></i> Data Siswa
+          </a>
+          <a href="teachers.html" class="menu-item">
+            <i class="fa-solid fa-chalkboard-user icon"></i> Data Guru
+          </a>
+          <a href="points.html" class="menu-item">
+            <i class="fa-solid fa-star icon"></i> Poin & Prestasi
+          </a>
+          <a href="reports.html" class="menu-item">
+            <i class="fa-solid fa-file-invoice icon"></i> Laporan
+          </a>
+        </nav>
+        <div class="sidebar-footer">
+          <a href="#" class="menu-item logout"
+            ><i class="fa-solid fa-right-from-bracket icon"></i> Keluar</a
+          >
+        </div>
+      </aside>
+
+      <main class="main-content">
+        <header class="top-bar">
+          <div>
+            <h1>Mata Pelajaran</h1>
+            <p class="subtitle">Daftar kurikulum dan muatan pelajaran.</p>
+          </div>
+        </header>
+
+        <div
+          class="action-bar"
+          style="
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+          "
+        >
+          <div class="search-box">
+            <i class="fa-solid fa-search"></i>
+            <input
+              type="text"
+              id="search-subject"
+              placeholder="Cari mapel..."
+            />
+          </div>
+          <button class="btn-primary" onclick="window.openModal()">
+            <i class="fa-solid fa-plus"></i> Tambah Mapel
+          </button>
+        </div>
+
+        <div class="table-container">
+          <table class="premium-table">
+            <thead>
+              <tr>
+                <th>Kode</th>
+                <th>Nama Mata Pelajaran</th>
+                <th>Kategori</th>
+                <th>Keterangan</th>
+                <th style="text-align: right">Aksi</th>
+              </tr>
+            </thead>
+            <tbody id="subject-list-body">
+              <tr>
+                <td colspan="5" style="text-align: center">Memuat data...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </main>
+    </div>
+
+    <div id="modal-subject" class="modal-overlay">
+      <div class="modal-box">
+        <div class="modal-header">
+          <h3>Form Mata Pelajaran</h3>
+          <button class="btn-close" onclick="window.closeModal()">
+            &times;
+          </button>
+        </div>
+        <form id="form-subject" onsubmit="window.handleSaveSubject(event)">
+          <div class="modal-body">
+            <input type="hidden" id="subject-id" />
+
+            <div class="row" style="display: flex; gap: 15px">
+              <div class="form-group" style="flex: 1">
+                <label>Kode Mapel</label>
+                <input
+                  type="text"
+                  id="kode-mapel"
+                  class="form-control"
+                  placeholder="Contoh: MTK"
+                  required
+                />
+              </div>
+              <div class="form-group" style="flex: 2">
+                <label>Kategori</label>
+                <select id="kategori" class="form-control">
+                  <option value="Muatan Nasional">Muatan Nasional</option>
+                  <option value="Muatan Kewilayahan">Muatan Kewilayahan</option>
+                  <option value="Kejuruan">Kejuruan / Produktif</option>
+                  <option value="Mulok">Muatan Lokal</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label>Nama Mata Pelajaran</label>
+              <input
+                type="text"
+                id="nama-mapel"
+                class="form-control"
+                placeholder="Contoh: Matematika"
+                required
+              />
+            </div>
+
+            <div class="form-group">
+              <label>Keterangan (Opsional)</label>
+              <textarea
+                id="keterangan"
+                class="form-control"
+                placeholder="Deskripsi singkat..."
+                rows="3"
+              ></textarea>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn-secondary"
+              onclick="window.closeModal()"
+            >
+              Batal
+            </button>
+            <button type="submit" class="btn-primary">Simpan</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <script type="module" src="../js/app.js"></script>
+    <script src="../js/utils/notifications.js"></script>
+    <script type="module" src="../js/views/pages/subjects/list.js"></script>
+  </body>
+</html>

@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Laporan - Siswa Manager</title>
+
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+      rel="stylesheet"
+    />
+
+    <link rel="stylesheet" href="../css/style.css" />
+    <link rel="stylesheet" href="../css/tables.css" />
+    <link rel="stylesheet" href="../css/forms.css" />
+    <link rel="stylesheet" href="../css/notifications.css" />
+    <link rel="stylesheet" href="../css/responsive.css" />
+
+    <style>
+      @media print {
+        /* Sembunyikan elemen navigasi saat nge-print */
+        .sidebar,
+        .btn-menu-mobile,
+        .action-bar,
+        .page-nav,
+        .filter-card {
+          display: none !important;
+        }
+        .main-content {
+          margin: 0;
+          padding: 0;
+          width: 100%;
+        }
+        .app-container {
+          flex-direction: column;
+        }
+        body {
+          background: white;
+          -webkit-print-color-adjust: exact;
+        }
+
+        /* Tampilkan Header Surat Resmi (Hanya muncul pas print) */
+        .print-header {
+          display: block !important;
+          text-align: center;
+          border-bottom: 2px solid black;
+          margin-bottom: 20px;
+          padding-bottom: 10px;
+        }
+      }
+
+      /* Default: Header surat sembunyi di layar */
+      .print-header {
+        display: none;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="sidebar-overlay" onclick="toggleSidebar()"></div>
+
+    <div class="app-container">
+      <button class="btn-menu-mobile" onclick="toggleSidebar()">
+        <i class="fa-solid fa-bars"></i>
+      </button>
+
+      <aside class="sidebar">
+        <div class="sidebar-header">
+          <i class="fa-solid fa-school-flag logo-icon"></i>
+          <h2>SISWA MANAGER</h2>
+        </div>
+        <nav class="sidebar-menu">
+          <a href="../dashboard.html" class="menu-item">
+            <i class="fa-solid fa-gauge-high icon"></i> Dashboard
+          </a>
+          <a href="classes.html" class="menu-item">
+            <i class="fa-solid fa-school icon"></i> Data Kelas
+          </a>
+          <a href="schedules.html" class="menu-item">
+            <i class="fa-solid fa-calendar-days icon"></i> Jadwal Pelajaran
+          </a>
+          <a href="subjects.html" class="menu-item">
+            <i class="fa-solid fa-book icon"></i> Mata Pelajaran
+          </a>
+          <a href="students.html" class="menu-item">
+            <i class="fa-solid fa-user-graduate icon"></i> Data Siswa
+          </a>
+          <a href="teachers.html" class="menu-item">
+            <i class="fa-solid fa-chalkboard-user icon"></i> Data Guru
+          </a>
+          <a href="points.html" class="menu-item">
+            <i class="fa-solid fa-star icon"></i> Poin & Prestasi
+          </a>
+          <a href="#" class="menu-item active">
+            <i class="fa-solid fa-file-invoice icon"></i> Laporan
+          </a>
+        </nav>
+        <div class="sidebar-footer">
+          <a href="#" class="menu-item logout"
+            ><i class="fa-solid fa-right-from-bracket icon"></i> Keluar</a
+          >
+        </div>
+      </aside>
+
+      <main class="main-content">
+        <div class="print-header">
+          <h2>SMK TEKNOLOGI MASA DEPAN</h2>
+          <p>Jl. Pendidikan No. 123, Kota Pelajar, Indonesia</p>
+          <p>Telp: (021) 555-6789 | Email: info@sekolah.sch.id</p>
+        </div>
+
+        <header class="top-bar">
+          <div>
+            <h1>Laporan & Rekapitulasi</h1>
+            <p class="subtitle">
+              Cetak laporan pelanggaran dan prestasi siswa.
+            </p>
+          </div>
+          <div class="action-bar">
+            <button class="btn-primary" onclick="window.print()">
+              <i class="fa-solid fa-print"></i> Cetak PDF
+            </button>
+          </div>
+        </header>
+
+        <div
+          style="
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+          "
+          class="filter-card"
+        >
+          <form
+            id="filter-form"
+            style="display: flex; gap: 15px; flex-wrap: wrap; align-items: end"
+          >
+            <div
+              class="form-group"
+              style="flex: 1; min-width: 150px; margin-bottom: 0"
+            >
+              <label>Kategori Laporan</label>
+              <select class="form-control" id="filter-type">
+                <option value="violation">
+                  Siswa Bermasalah (Pelanggaran)
+                </option>
+                <option value="achievement">Siswa Berprestasi</option>
+              </select>
+            </div>
+            <div
+              class="form-group"
+              style="flex: 1; min-width: 150px; margin-bottom: 0"
+            >
+              <label>Bulan</label>
+              <input type="month" class="form-control" id="filter-month" />
+            </div>
+            <button
+              type="button"
+              class="btn-primary"
+              onclick="generateReport()"
+            >
+              <i class="fa-solid fa-filter"></i> Tampilkan
+            </button>
+          </form>
+        </div>
+
+        <div
+          class="table-container"
+          style="
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+          "
+        >
+          <h3
+            id="report-title"
+            style="margin-bottom: 25px; margin-left: 5px; line-height: 1.4"
+          >
+            Laporan Siswa Bermasalah (Top 5)
+          </h3>
+
+          <table class="premium-table">
+            <thead>
+              <tr>
+                <th>Peringkat</th>
+                <th>Nama Siswa</th>
+                <th>Kelas</th>
+                <th>Total Kasus</th>
+                <th>Total Poin</th>
+              </tr>
+            </thead>
+            <tbody id="report-body"></tbody>
+          </table>
+        </div>
+
+        <div
+          style="margin-top: 50px; text-align: right; display: none"
+          id="sign-area"
+        >
+          <p>Banjarmasin, <span id="today-date"></span></p>
+          <p style="margin-bottom: 60px">Kepala Sekolah</p>
+          <b>Drs. H. Pendidik, M.Pd.</b>
+          <p>NIP. 19800101 200012 1 001</p>
+        </div>
+      </main>
+    </div>
+
+    <script type="module" src="../js/app.js"></script>
+    <script src="../js/utils/notifications.js"></script>
+    <script src="../js/views/pages/reports/list.js"></script>
+
+    <script>
+      // Tampilkan area tanda tangan hanya saat print request
+      window.onbeforeprint = function () {
+        document.getElementById("sign-area").style.display = "block";
+
+        // Set tanggal hari ini
+        const date = new Date();
+        const options = { day: "numeric", month: "long", year: "numeric" };
+        document.getElementById("today-date").innerText =
+          date.toLocaleDateString("id-ID", options);
+      };
+      window.onafterprint = function () {
+        document.getElementById("sign-area").style.display = "none";
+      };
+    </script>
+  </body>
+</html>

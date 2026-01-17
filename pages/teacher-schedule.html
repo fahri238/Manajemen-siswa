@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Jadwal Mengajar - Guru Area</title>
+
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+      rel="stylesheet"
+    />
+
+    <link rel="stylesheet" href="../css/style.css" />
+    <link rel="stylesheet" href="../css/tables.css" />
+    <link rel="stylesheet" href="../css/notifications.css" />
+    <link rel="stylesheet" href="../css/responsive.css" />
+    <link rel="stylesheet" href="../css/teacher.css" />
+    <style>
+      /* Style Khusus Grid Jadwal */
+      .schedule-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 20px;
+      }
+
+      .day-card {
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+        border: 1px solid #e5e7eb;
+      }
+
+      .day-header {
+        background-color: #0f766e; /* Hijau Guru */
+        color: white;
+        padding: 15px 20px;
+        font-weight: 600;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .day-body {
+        padding: 0;
+      }
+
+      .schedule-item {
+        padding: 15px 20px;
+        border-bottom: 1px solid #f3f4f6;
+        display: flex;
+        align-items: flex-start;
+        gap: 15px;
+        transition: background 0.2s;
+      }
+      .schedule-item:last-child {
+        border-bottom: none;
+      }
+      .schedule-item:hover {
+        background-color: #f0fdfa;
+      }
+
+      .time-box {
+        background-color: #f3f4f6;
+        padding: 8px 12px;
+        border-radius: 8px;
+        font-size: 13px;
+        font-weight: 600;
+        color: #374151;
+        text-align: center;
+        min-width: 80px;
+      }
+
+      .lesson-info h4 {
+        margin: 0 0 5px 0;
+        font-size: 15px;
+        color: #111827;
+      }
+      .lesson-info p {
+        margin: 0;
+        font-size: 13px;
+        color: #6b7280;
+      }
+
+      .empty-state {
+        padding: 20px;
+        text-align: center;
+        color: #9ca3af;
+        font-size: 14px;
+        font-style: italic;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="sidebar-overlay" onclick="toggleSidebar()"></div>
+
+    <div class="app-container">
+      <button class="btn-menu-mobile" onclick="toggleSidebar()">
+        <i class="fa-solid fa-bars"></i>
+      </button>
+
+      <aside class="sidebar">
+        <div class="sidebar-header">
+          <i class="fa-solid fa-chalkboard-user logo-icon"></i>
+          <h2>GURU AREA</h2>
+        </div>
+        <nav class="sidebar-menu">
+          <a href="teacher-dashboard.html" class="menu-item">
+            <i class="fa-solid fa-gauge-high icon"></i> Dashboard
+          </a>
+          <a href="#" class="menu-item active">
+            <i class="fa-solid fa-calendar-days icon"></i> Jadwal Mengajar
+          </a>
+          <div
+            style="
+              margin: 10px 20px;
+              font-size: 12px;
+              color: rgba(255, 255, 255, 0.5);
+              text-transform: uppercase;
+              font-weight: bold;
+            "
+          >
+            Wali Kelas
+          </div>
+          <a href="teacher-reports.html" class="menu-item ">
+            <i class="fa-solid fa-chart-pie icon"></i> Laporan Kelas
+          </a>
+          <a href="teacher-attendance.html" class="menu-item">
+            <i class="fa-solid fa-clipboard-user icon"></i> Absensi Harian
+          </a>
+          <a href="teacher-students.html" class="menu-item">
+            <i class="fa-solid fa-user-graduate icon"></i> Data Siswa
+          </a>
+          <a href="teacher-points.html" class="menu-item">
+            <i class="fa-solid fa-star icon"></i> Input Poin
+          </a>
+        </nav>
+        <div class="sidebar-footer">
+          <a href="#" class="menu-item logout"
+            ><i class="fa-solid fa-right-from-bracket icon"></i> Keluar</a
+          >
+        </div>
+      </aside>
+
+      <main class="main-content">
+        <header class="top-bar">
+          <div>
+            <h1>Jadwal Mengajar</h1>
+            <p class="subtitle">
+              Agenda mingguan Anda (Tahun Ajaran 2025/2026).
+            </p>
+          </div>
+        </header>
+
+        <div class="schedule-grid" id="schedule-container"></div>
+      </main>
+    </div>
+
+    <script type="module" src="../js/app.js"></script>
+    <script src="../js/utils/notifications.js"></script>
+    <script
+      type="module"
+      src="../js/views/pages/schedules/teacher-view.js"
+    ></script>
+  </body>
+</html>

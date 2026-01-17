@@ -1,0 +1,67 @@
+/* --- STUDENT.CSS (Theme) --- */
+
+:root {
+  --primary-color: #0EA5E9; /* Sky Blue 500 */
+  --secondary-color: #0284C7; /* Sky Blue 600 */
+  --bg-light: #F0F9FF; /* Sky Blue 50 */
+  --sidebar-width: 260px; /* Sedikit lebih ramping */
+}
+
+/* Override Sidebar Color */
+.sidebar {
+  background: linear-gradient(180deg, #0EA5E9 0%, #0284C7 100%);
+  box-shadow: 4px 0 15px rgba(14, 165, 233, 0.2);
+}
+
+.logo-icon { color: #E0F2FE; }
+.menu-item { color: #BAE6FD; }
+.menu-item:hover, .menu-item.active {
+    background-color: rgba(255, 255, 255, 0.2);
+    color: white;
+}
+
+/* Card Khusus Siswa */
+.info-card {
+    background: white;
+    border-radius: 16px;
+    padding: 25px;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s;
+}
+.info-card:hover { transform: translateY(-5px); }
+
+.info-card h3 { margin: 0; font-size: 36px; color: #0F172A; font-weight: 700; }
+.info-card p { margin: 5px 0 0 0; color: #64748B; font-size: 14px; font-weight: 500; }
+.info-card .icon-bg {
+    position: absolute;
+    right: -10px; bottom: -10px;
+    font-size: 80px;
+    opacity: 0.1;
+    transform: rotate(-15deg);
+}
+
+/* Timeline Jadwal Hari Ini */
+.timeline {
+    padding-left: 20px;
+    border-left: 2px solid #E2E8F0;
+    margin-top: 20px;
+}
+.timeline-item {
+    position: relative;
+    margin-bottom: 25px;
+}
+.timeline-item::before {
+    content: '';
+    position: absolute;
+    left: -27px; top: 5px;
+    width: 12px; height: 12px;
+    background: var(--primary-color);
+    border-radius: 50%;
+    border: 2px solid white;
+    box-shadow: 0 0 0 2px var(--primary-color);
+}
+.timeline-time { font-size: 12px; font-weight: 700; color: #64748B; margin-bottom: 4px; }
+.timeline-title { font-size: 15px; font-weight: 600; color: #0F172A; }
+.timeline-desc { font-size: 13px; color: #64748B; }

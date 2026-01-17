@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Kelola Poin - Siswa Manager</title>
+
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+      rel="stylesheet"
+    />
+
+    <link rel="stylesheet" href="../css/style.css" />
+    <link rel="stylesheet" href="../css/tables.css" />
+    <link rel="stylesheet" href="../css/forms.css" />
+    <link rel="stylesheet" href="../css/notifications.css" />
+    <link rel="stylesheet" href="../css/responsive.css" />
+
+    <style>
+      .points-layout {
+        display: grid;
+        grid-template-columns: 350px 1fr;
+        gap: 25px;
+        align-items: start;
+      }
+      .input-card {
+        background: white;
+        padding: 25px;
+        border-radius: 16px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        border: 1px solid rgba(0, 0, 0, 0.03);
+        position: sticky;
+        top: 20px;
+      }
+      .input-header {
+        border-bottom: 1px solid #f3f4f6;
+        padding-bottom: 15px;
+        margin-bottom: 20px;
+      }
+      .input-header h3 {
+        font-size: 16px;
+        color: #1f2937;
+        margin: 0;
+      }
+
+      .point-type-selector {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 20px;
+      }
+      .type-btn {
+        flex: 1;
+        padding: 10px;
+        border: 1px solid #e5e7eb;
+        border-radius: 8px;
+        background: white;
+        cursor: pointer;
+        font-weight: 500;
+        color: #6b7280;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        transition: 0.2s;
+      }
+      /* Active States */
+      .type-btn.active-minus {
+        background: #fee2e2;
+        border-color: #ef4444;
+        color: #dc2626;
+      }
+      .type-btn.active-plus {
+        background: #d1fae5;
+        border-color: #10b981;
+        color: #059669;
+      }
+
+      @media (max-width: 900px) {
+        .points-layout {
+          grid-template-columns: 1fr;
+        }
+        .input-card {
+          position: static;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="sidebar-overlay" onclick="toggleSidebar()"></div>
+
+    <div class="app-container">
+      <button class="btn-menu-mobile" onclick="toggleSidebar()">
+        <i class="fa-solid fa-bars"></i>
+      </button>
+
+      <aside class="sidebar">
+        <div class="sidebar-header">
+          <i class="fa-solid fa-school-flag logo-icon"></i>
+          <h2>SISWA MANAGER</h2>
+        </div>
+        <nav class="sidebar-menu">
+          <a href="../dashboard.html" class="menu-item">
+            <i class="fa-solid fa-gauge-high icon"></i> Dashboard
+          </a>
+          <a href="classes.html" class="menu-item">
+            <i class="fa-solid fa-school icon"></i> Data Kelas
+          </a>
+          <a href="schedules.html" class="menu-item">
+            <i class="fa-solid fa-calendar-days icon"></i> Jadwal Pelajaran
+          </a>
+          <a href="subjects.html" class="menu-item">
+            <i class="fa-solid fa-book icon"></i> Mata Pelajaran
+          </a>
+          <a href="students.html" class="menu-item">
+            <i class="fa-solid fa-user-graduate icon"></i> Data Siswa
+          </a>
+          <a href="teachers.html" class="menu-item">
+            <i class="fa-solid fa-chalkboard-user icon"></i> Data Guru
+          </a>
+          <a href="#" class="menu-item active">
+            <i class="fa-solid fa-star icon"></i> Poin & Prestasi
+          </a>
+          <a href="reports.html" class="menu-item">
+            <i class="fa-solid fa-file-invoice icon"></i> Laporan
+          </a>
+        </nav>
+        <div class="sidebar-footer">
+          <a href="#" class="menu-item logout"
+            ><i class="fa-solid fa-right-from-bracket icon"></i> Keluar</a
+          >
+        </div>
+      </aside>
+
+      <main class="main-content">
+        <header class="top-bar">
+          <div>
+            <h1>Kelola Poin</h1>
+            <p class="subtitle">
+              Catat pelanggaran atau prestasi siswa di sini.
+            </p>
+          </div>
+        </header>
+
+        <div class="points-layout">
+          <div class="input-card">
+            <div class="input-header">
+              <h3><i class="fa-solid fa-pen-to-square"></i> Input Poin Baru</h3>
+            </div>
+
+            <form id="form-points" onsubmit="window.handleSavePoint(event)">
+              <div class="point-type-selector">
+                <button
+                  type="button"
+                  class="type-btn active-minus"
+                  onclick="window.setPointType('violation')"
+                  id="btn-violation"
+                >
+                  <i class="fa-solid fa-circle-exclamation"></i> Pelanggaran
+                </button>
+                <button
+                  type="button"
+                  class="type-btn"
+                  onclick="window.setPointType('achievement')"
+                  id="btn-achievement"
+                >
+                  <i class="fa-solid fa-medal"></i> Prestasi
+                </button>
+              </div>
+              <input type="hidden" id="point-type" value="violation" />
+
+              <div class="form-group">
+                <label>Pilih Siswa</label>
+                <select class="form-control" id="input-student" required>
+                  <option value="">-- Memuat Siswa... --</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label>Keterangan</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="input-desc"
+                  placeholder="Contoh: Terlambat sekolah..."
+                  required
+                />
+              </div>
+
+              <div class="form-group">
+                <label>Jumlah Poin</label>
+                <input
+                  type="number"
+                  class="form-control"
+                  id="input-amount"
+                  value="5"
+                  min="1"
+                  required
+                />
+                <small style="color: #6b7280; font-size: 12px"
+                  >*Otomatis dikonversi sesuai tipe</small
+                >
+              </div>
+
+              <div class="form-group">
+                <label>Tanggal Kejadian</label>
+                <input
+                  type="date"
+                  class="form-control"
+                  id="input-date"
+                  required
+                />
+              </div>
+
+              <button
+                type="submit"
+                class="btn-primary"
+                style="width: 100%; justify-content: center; margin-top: 10px"
+              >
+                Simpan Data
+              </button>
+            </form>
+          </div>
+
+          <div class="table-container">
+            <h3 style="font-size: 16px; color: #334155; padding: 15px">
+              Riwayat Poin Terbaru
+            </h3>
+            <table class="premium-table">
+              <thead>
+                <tr>
+                  <th>Tanggal</th>
+                  <th>Nama Siswa</th>
+                  <th>Keterangan</th>
+                  <th style="text-align: right">Poin</th>
+                  <th style="text-align: right">Aksi</th>
+                </tr>
+              </thead>
+              <tbody id="points-history-body">
+                <tr>
+                  <td colspan="5" style="text-align: center">Memuat data...</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </main>
+    </div>
+
+    <script src="../js/utils/notifications.js"></script>
+    <script type="module" src="../js/app.js"></script>
+    <script type="module" src="../js/views/pages/points/list.js"></script>
+  </body>
+</html>

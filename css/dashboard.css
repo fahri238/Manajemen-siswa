@@ -1,0 +1,87 @@
+/* --- DASHBOARD SPECIFIC STYLES (dashboard.css) --- */
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); /* Sedikit lebih lebar */
+    gap: 25px;
+    margin-bottom: 40px;
+}
+
+/* --- DESAIN KARTU BARU --- */
+.stat-card {
+    background: white;
+    padding: 25px;
+    border-radius: 16px; /* Sudut lebih bulat */
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 5px 10px -5px rgba(0, 0, 0, 0.02); /* Shadow lembut & dalam */
+    display: flex;
+    align-items: center;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    border: 1px solid rgba(0,0,0,0.03);
+}
+
+/* Efek hover pada kartu */
+.stat-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 20px 30px -10px rgba(0, 0, 0, 0.1);
+}
+
+/* Wrapper untuk Icon Bubble */
+.card-icon-wrapper {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%; /* Lingkaran penuh */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    margin-right: 20px;
+    flex-shrink: 0; /* Agar lingkaran tidak tergencet */
+}
+
+/* Wrapper untuk Teks */
+.card-content-wrapper {
+    flex: 1;
+}
+
+.stat-title {
+    font-size: 14px;
+    color: var(--text-muted);
+    margin-bottom: 8px;
+    font-weight: 500;
+}
+
+.stat-value {
+    font-family: var(--font-heading);
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--text-dark);
+    line-height: 1.2;
+}
+
+/* --- VARIASI WARNA KARTU --- */
+/* Biru (Siswa) */
+.stat-card.blue .card-icon-wrapper { background-color: #DBEAFE; color: #2563EB; }
+/* Hijau (Guru) */
+.stat-card.green .card-icon-wrapper { background-color: #D1FAE5; color: #059669; }
+/* Ungu (Kelas) */
+.stat-card.purple .card-icon-wrapper { background-color: #EDE9FE; color: #7C3AED; }
+/* Merah/Orange (Poin/Masalah) */
+.stat-card.red .card-icon-wrapper { background-color: #FEE2E2; color: #DC2626; }
+
+
+/* --- SECTION LAIN --- */
+.content-section {
+    background: white;
+    padding: 25px;
+    border-radius: 16px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+    border: 1px solid rgba(0,0,0,0.03);
+}
+.section-header h3 { color: var(--text-dark); margin-bottom: 20px; }
+.placeholder-chart {
+    height: 250px;
+    background-color: #F9FAFB;
+    border-radius: 12px;
+    display: flex; align-items: center; justify-content: center; color: #9CA3AF;
+    border: 2px dashed #E5E7EB;
+}
