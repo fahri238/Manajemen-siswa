@@ -1,206 +1,188 @@
-// js/views/pages/reports/teacher-view.js
+import { SessionManager } from "../../../auth/session.js";
 
-// --- MOCK DATA (Sama seperti sebelumnya) ---
-const currentUser = { id: 101, name: "Bpk. Agus Setiawan" }; // User Login
-const classesData = [
-  { id: 1, name: "X RPL 1", wali_kelas_id: 101 },
-  { id: 2, name: "XI TKJ 2", wali_kelas_id: 103 },
-];
-const studentsData = [
-  {
-    id: 1,
-    name: "Ahmad Rizky",
-    nis: "10293",
-    class_id: 1,
-    gender: "L",
-    points: 5,
-  },
-  {
-    id: 2,
-    name: "Bunga Citra",
-    nis: "10294",
-    class_id: 1,
-    gender: "P",
-    points: 0,
-  },
-  {
-    id: 3,
-    name: "Doni Tata",
-    nis: "10295",
-    class_id: 1,
-    gender: "L",
-    points: 45,
-  },
-  {
-    id: 4,
-    name: "Eka Saputra",
-    nis: "10296",
-    class_id: 1,
-    gender: "L",
-    points: 25,
-  },
-  { id: 5, name: "Fajar", nis: "10299", class_id: 2, gender: "L", points: 10 },
-];
-const attendanceData = [
-  {
-    date: "2025-01-10",
-    class_id: 1,
-    details: [
-      { student_id: 1, status: "H" },
-      { student_id: 3, status: "A" },
-    ],
-  },
-  {
-    date: "2025-01-11",
-    class_id: 1,
-    details: [
-      { student_id: 1, status: "H" },
-      { student_id: 3, status: "A" },
-    ],
-  },
-];
+const API_REPORT = "http://localhost:5000/api/reports/teacher-summary";
 
 document.addEventListener("DOMContentLoaded", () => {
-  initReport();
+  const user = SessionManager.getUser();
+  if (!user) {
+    alert("Sesi habis.");
+    SessionManager.logout();
+    return;
+  }
+  // Load pertama kali (tanpa filter ID kelas)
+  loadReport(user);
+  setupDate();
 });
 
-function initReport() {
-  // 1. Identifikasi Kelas
-  const myClass = classesData.find((c) => c.wali_kelas_id === currentUser.id);
+// Parameter classId opsional (default null)
+// ... import dan kode atas tetap sama ...
 
-  if (!myClass) {
-    document.querySelector(
-      ".main-content"
-    ).innerHTML = `<h2 style="text-align:center; margin-top:50px;">Anda bukan Wali Kelas.</h2>`;
-    return;
-  }
+async function loadReport(user, classId = null) {
+  document.getElementById("sig-teacher-name").innerText =
+    user.nama || user.name || "Guru Wali Kelas";
 
-  // Set Text UI
-  document.getElementById(
-    "class-subtitle"
-  ).innerText = `Laporan Kelas ${myClass.name}`;
-  document.getElementById(
-    "print-subtitle"
-  ).innerText = `KELAS: ${myClass.name} | TAHUN AJARAN 2025/2026`;
-  document.getElementById("sig-teacher-name").innerText = currentUser.name;
+  try {
+    let url = `${API_REPORT}/${user.id}`;
+    if (classId) url += `?classId=${classId}`;
 
-  // Set Tanggal Print Hari Ini
-  const dateNow = new Date().toLocaleDateString("id-ID", {
-    day: "numeric",
-    month: "long",
-    year: "numeric",
-  });
-  document.getElementById("print-date").innerText = dateNow;
+    const res = await fetch(url);
+    const result = await res.json();
 
-  // 2. Filter & Hitung Data Siswa
-  const myStudents = studentsData.filter((s) => s.class_id === myClass.id);
+    if (result.success) {
+      // FIX ERROR DISINI:
+      // Kita tampung dulu datanya, lalu kita cek ketersediaannya (Optional Chaining)
+      const data = result.data;
 
-  myStudents.forEach((student) => {
-    let alpha = 0;
-    let totalDays = 0;
-    let present = 0;
+      // 1. SAFEGUARD: Cek apakah backend mengirim format Baru (available_classes) atau Lama (kelas)
+      // Jika backend masih versi lama, 'available_classes' akan undefined, kita ganti array kosong []
+      const availableClasses = data.available_classes || [];
+      const activeClass = data.active_class || data.kelas; // Support lama & baru
 
-    attendanceData.forEach((record) => {
-      if (record.class_id === myClass.id) {
-        const detail = record.details.find((d) => d.student_id === student.id);
-        if (detail) {
-          totalDays++;
-          if (detail.status === "A") alpha++;
-          if (detail.status === "H") present++;
+      // Pastikan data kelas ada
+      if (!activeClass)
+        throw new Error("Data kelas tidak ditemukan dari server.");
+
+      const stats = data.stats;
+      const students = data.students;
+
+      // --- 2. SETUP DROPDOWN KELAS ---
+      const selector = document.getElementById("class-selector");
+
+      // Cek length hanya jika arraynya ada
+      if (availableClasses && availableClasses.length > 1) {
+        selector.style.display = "block";
+
+        if (selector.options.length === 0) {
+          selector.innerHTML = "";
+          availableClasses.forEach((cls) => {
+            const option = document.createElement("option");
+            option.value = cls.id;
+            option.text = cls.nama_kelas;
+            if (cls.id === activeClass.id) option.selected = true;
+            selector.appendChild(option);
+          });
+
+          selector.addEventListener("change", (e) => {
+            loadReport(user, e.target.value);
+          });
         }
+      } else {
+        selector.style.display = "none";
       }
-    });
 
-    student.alphaCount = alpha;
-    // Jika belum ada data absen, anggap 100% (Husnuzan)
-    student.attendanceRate =
-      totalDays > 0 ? Math.round((present / totalDays) * 100) : 100;
-  });
+      // --- 3. UPDATE UI ---
+      document.getElementById("class-subtitle").innerText =
+        `Laporan Kelas: ${activeClass.nama_kelas}`;
+      document.getElementById("total-students").innerText = stats.total_siswa;
+      document.getElementById("total-violations").innerText =
+        stats.total_pelanggaran;
+      document.getElementById("avg-attendance").innerText =
+        stats.avg_attendance + "%";
 
-  // 3. Render Statistik Cards
-  document.getElementById("total-students").innerText = myStudents.length;
-  document.getElementById("total-violations").innerText = myStudents.reduce(
-    (sum, s) => sum + s.points,
-    0
-  );
-  const avg =
-    myStudents.length > 0
-      ? Math.round(
-          myStudents.reduce((sum, s) => sum + s.attendanceRate, 0) /
-            myStudents.length
-        )
-      : 0;
-  document.getElementById("avg-attendance").innerText = `${avg}%`;
+      // Sorting (Sama seperti sebelumnya)
+      const topAlpha = [...students]
+        .sort((a, b) => b.alfa - a.alfa)
+        .slice(0, 5);
+      renderTopAlpha(topAlpha);
 
-  // 4. Render Tabel-tabel
-  renderTopAlpha(myStudents);
-  renderTopPoints(myStudents);
-  renderFullList(myStudents); // TABEL BARU LENGKAP
+      const topViolations = [...students]
+        .filter((s) => s.total_pelanggaran > 0)
+        .sort((a, b) => b.total_pelanggaran - a.total_pelanggaran)
+        .slice(0, 5);
+      renderTopPoints(topViolations);
+
+      renderFullTable(students);
+    } else {
+      document.getElementById("class-subtitle").innerHTML =
+        `<span style="color:red">${result.message}</span>`;
+    }
+  } catch (error) {
+    console.error("Error loadReport:", error);
+    document.getElementById("class-subtitle").innerText =
+      "Gagal memuat data (Cek Console).";
+  }
 }
 
-function renderTopAlpha(students) {
+function renderTopAlpha(data) {
   const tbody = document.getElementById("top-alpha-body");
-  const sorted = [...students]
-    .sort((a, b) => b.alphaCount - a.alphaCount)
-    .slice(0, 5);
   tbody.innerHTML = "";
-
-  if (sorted.length === 0 || sorted[0].alphaCount === 0) {
-    tbody.innerHTML =
-      '<tr><td colspan="3" style="text-align:center;">Nihil</td></tr>';
-    return;
-  }
-
-  sorted.forEach((s) => {
-    if (s.alphaCount === 0) return;
-    tbody.innerHTML += `<tr><td>${s.name}</td><td style="text-align:center">${s.alphaCount}</td><td><span class="badge warning">Pantau</span></td></tr>`;
+  data.forEach((s) => {
+    if (s.alfa === 0) return;
+    tbody.innerHTML += `
+            <tr>
+                <td style="font-weight:600">${s.nama_lengkap}</td>
+                <td style="text-align:center; color:red; font-weight:bold">${s.alfa}</td>
+                <td><span class="badge warning">Alpha</span></td>
+            </tr>`;
   });
+  if (tbody.innerHTML === "")
+    tbody.innerHTML = `<tr><td colspan="3" class="text-center">Nihil</td></tr>`;
 }
 
-function renderTopPoints(students) {
+// FIX: Menampilkan Top Pelanggaran di Box Merah
+function renderTopPoints(data) {
   const tbody = document.getElementById("top-points-body");
-  const sorted = [...students].sort((a, b) => b.points - a.points).slice(0, 5);
   tbody.innerHTML = "";
 
-  if (sorted.length === 0 || sorted[0].points === 0) {
-    tbody.innerHTML =
-      '<tr><td colspan="3" style="text-align:center;">Nihil</td></tr>';
-    return;
-  }
+  data.forEach((s) => {
+    // Logic Status Pelanggaran
+    let action = "Teguran Lisan";
+    if (s.total_pelanggaran > 20) action = "Surat Peringatan 1";
+    if (s.total_pelanggaran > 50) action = "Panggilan Ortu";
 
-  sorted.forEach((s) => {
-    if (s.points === 0) return;
-    tbody.innerHTML += `<tr><td>${s.name}</td><td style="text-align:center; color:red; font-weight:bold;">${s.points}</td><td><span class="badge inactive">Binaan</span></td></tr>`;
+    tbody.innerHTML += `
+            <tr>
+                <td style="font-weight:600">${s.nama_lengkap}</td>
+                <td style="text-align:center; font-weight:bold; color:#dc2626">
+                    ${s.total_pelanggaran}
+                </td>
+                <td style="font-size:12px">${action}</td>
+            </tr>`;
   });
+
+  if (tbody.innerHTML === "") {
+    tbody.innerHTML = `<tr><td colspan="3" style="text-align:center; color:#64748b;">Aman (Tidak ada pelanggaran)</td></tr>`;
+  }
 }
 
-// --- FUNGSI RENDER TABEL LENGKAP UNTUK PRINT ---
-function renderFullList(students) {
+// FIX: Tabel Utama (Kolom Poin menampilkan Poin Prestasi)
+function renderFullTable(data) {
   const tbody = document.getElementById("full-student-list");
   tbody.innerHTML = "";
 
-  // Urutkan Abjad
-  const sorted = [...students].sort((a, b) => a.name.localeCompare(b.name));
+  data.forEach((s, index) => {
+    const genderIcon =
+      s.gender === "L"
+        ? '<i class="fa-solid fa-mars" style="color:blue"></i>'
+        : '<i class="fa-solid fa-venus" style="color:pink"></i>';
 
-  sorted.forEach((s, index) => {
-    // Tentukan Predikat Sikap Otomatis
-    let catatan = "Sangat Baik, pertahankan.";
-    if (s.points > 10 || s.attendanceRate < 90)
-      catatan = "Perlu ditingkatkan kedisiplinannya.";
-    if (s.points > 30 || s.attendanceRate < 75)
-      catatan = "Perlu pembinaan khusus dan panggilan orang tua.";
-
-    const row = `
+    // Poin Prestasi Warnanya Hijau
+    // Jika ada pelanggaran, bisa kita tampilkan kecil di bawahnya (Opsional)
+    tbody.innerHTML += `
             <tr>
-                <td style="text-align:center;">${index + 1}</td>
+                <td>${index + 1}</td>
                 <td>${s.nis}</td>
-                <td style="font-weight:600;">${s.name}</td>
-                <td style="text-align:center;">${s.gender}</td>
-                <td style="text-align:center;">${s.attendanceRate}%</td>
-                <td style="text-align:center;">${s.points}</td>
-                <td style="font-size: 13px;">${catatan}</td>
-            </tr>
-        `;
-    tbody.innerHTML += row;
+                <td style="font-weight:600">${s.nama_lengkap}</td>
+                <td style="text-align:center">${genderIcon}</td>
+                <td style="text-align:center">${s.attendance_pct}%</td>
+                
+                <td style="text-align:center; font-weight:bold; color:#10b981">
+                    ${s.total_prestasi}
+                    ${s.total_pelanggaran > 0 ? `<br><small style="color:red; font-size:10px">(-${s.total_pelanggaran} Plg)</small>` : ""}
+                </td>
+                
+                <td><div style="border-bottom:1px dotted #ccc; height:20px;"></div></td>
+            </tr>`;
   });
+}
+
+function setupDate() {
+  const today = new Date().toLocaleDateString("id-ID", {
+    weekday: "long",
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  });
+  const el = document.getElementById("print-date");
+  if (el) el.innerText = today;
 }

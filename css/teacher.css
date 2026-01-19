@@ -2,67 +2,138 @@
 
 /* 1. UBAH VARIABEL WARNA GLOBAL */
 :root {
-    --primary-color: #0F766E;  /* Teal Gelap (Utama) */
-    --secondary-color: #134E4A; /* Teal Lebih Gelap (Hover) */
-    --sidebar-bg-top: #0F766E;
-    --sidebar-bg-bottom: #115E59;
+  --primary-color: #0f766e; /* Teal Gelap (Utama) */
+  --secondary-color: #134e4a; /* Teal Lebih Gelap (Hover) */
+  --sidebar-bg-top: #0f766e;
+  --sidebar-bg-bottom: #115e59;
 }
 
 /* 2. OVERRIDE SIDEBAR (Ganti Biru jadi Hijau) */
 .sidebar {
-    background: linear-gradient(
-        180deg, 
-        var(--sidebar-bg-top) 0%, 
-        var(--sidebar-bg-bottom) 100%
-    );
-    box-shadow: 4px 0 10px rgba(15, 118, 110, 0.2);
+  background: linear-gradient(
+    180deg,
+    var(--sidebar-bg-top) 0%,
+    var(--sidebar-bg-bottom) 100%
+  );
+  box-shadow: 4px 0 10px rgba(15, 118, 110, 0.2);
 }
 
 /* 3. LOGO & ICON DI SIDEBAR */
 .logo-icon {
-    color: #99F6E4; /* Teal muda banget biar kontras */
+  color: #99f6e4; /* Teal muda banget biar kontras */
 }
 .menu-item {
-    color: #CCFBF1; /* Teks menu agak putih kehijauan */
+  color: #ccfbf1; /* Teks menu agak putih kehijauan */
 }
-.menu-item:hover, 
+.menu-item:hover,
 .menu-item.active {
-    background-color: rgba(255, 255, 255, 0.15);
-    color: #FFFFFF;
-    border-left: 3px solid #5EEAD4; /* Aksen garis kiri saat aktif */
+  background-color: rgba(255, 255, 255, 0.15);
+  color: #ffffff;
+  border-left: 3px solid #5eead4; /* Aksen garis kiri saat aktif */
 }
 
 /* 4. TOMBOL MENU MOBILE */
 .btn-menu-mobile {
-    background-color: var(--primary-color);
-    box-shadow: 0 4px 10px rgba(15, 118, 110, 0.3);
+  background-color: var(--primary-color);
+  box-shadow: 0 4px 10px rgba(15, 118, 110, 0.3);
 }
 
 /* 5. OVERRIDE TOMBOL PRIMARY (Agar senada) */
 .btn-primary {
-    background-color: var(--primary-color);
+  background-color: var(--primary-color);
 }
 .btn-primary:hover {
-    background-color: var(--secondary-color);
+  background-color: var(--secondary-color);
 }
 
 /* 6. LOGIKA MENYEMBUNYIKAN FITUR ADMIN (PENTING!) */
 
 /* Sembunyikan kolom aksi (Edit/Hapus) di tabel */
-.premium-table th:last-child, 
+.premium-table th:last-child,
 .premium-table td:last-child {
-    display: none;
+  display: none;
 }
 
 /* Sembunyikan tombol "Tambah Siswa" atau tombol aksi admin lainnya */
 /* Kita targetkan tombol yang punya onclick membuka modal */
-button[onclick^="openAdd"], 
+button[onclick^="openAdd"],
 .btn-add-hidden {
-    display: none !important;
+  display: none !important;
 }
 
 /* 7. MODIFIKASI BADGE/STATUS BIAR LEBIH SOFT */
 .badge.active {
-    background-color: #CCFBF1;
-    color: #0F766E;
+  background-color: #ccfbf1;
+  color: #0f766e;
+}
+
+/* --- STYLE TABEL ABSENSI --- */
+
+/* 1. Atur Baris & Sel Tabel */
+.table td {
+  vertical-align: middle; /* Agar semua elemen sejajar di tengah secara vertikal */
+  padding: 15px 12px; /* Memberi ruang napas yang cukup */
+  border-bottom: 1px solid #f3f4f6;
+}
+
+/* 2. Styling Kolom Status (Radio Buttons) */
+.status-options {
+  display: flex;
+  gap: 15px; /* Jarak antar opsi (Hadir vs Sakit) */
+  align-items: center;
+  justify-content: center;
+}
+
+.radio-label {
+  display: flex;
+  align-items: center;
+  gap: 6px; /* Jarak antara bulatan radio dengan Badge */
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+.radio-label:hover {
+  transform: translateY(-2px); /* Efek naik sedikit saat di-hover */
+}
+
+/* Kustomisasi warna Radio Button agar sesuai tema */
+.radio-label input[type="radio"] {
+  accent-color: #0f766e; /* Warna Teal saat dipilih */
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+}
+
+/* 3. Styling Input Keterangan (YANG ANDA MINTA) */
+.note-input {
+  width: 100%;
+  padding: 10px 14px;
+  border: 1px solid #d1d5db; /* Warna border abu-abu halus */
+  border-radius: 8px; /* Sudut membulat */
+  font-size: 13px;
+  color: #374151;
+  background-color: #f9fafb;
+  transition: all 0.3s ease;
+  outline: none;
+}
+
+/* Efek saat Input diklik (Focus) */
+.note-input:focus {
+  background-color: #ffffff;
+  border-color: #0f766e; /* Border berubah jadi Teal */
+  box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.1); /* Efek glow halus */
+}
+
+.note-input::placeholder {
+  color: #9ca3af;
+  font-style: italic;
+}
+
+/* 4. Badge Styling (Penyempurnaan) */
+.badge {
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.3px;
 }

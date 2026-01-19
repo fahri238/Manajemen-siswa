@@ -1,10 +1,9 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="id">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Dashboard Guru - Siswa Manager</title>
-
     <link
       href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@600;700&display=swap"
       rel="stylesheet"
@@ -15,21 +14,26 @@
     />
 
     <link rel="stylesheet" href="../css/style.css" />
-    <link rel="stylesheet" href="../css/tables.css" />
-    <link rel="stylesheet" href="../css/responsive.css" />
     <link rel="stylesheet" href="../css/notifications.css" />
+    <link rel="stylesheet" href="../css/teacher.css" />
 
     <style>
-      .sidebar {
-        background: #0f766e;
-      } /* Warna Teal Gelap */
-      .sidebar .menu-item.active {
-        background: rgba(255, 255, 255, 0.2);
+      .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 15px;
+        margin-bottom: 25px;
       }
-      .btn-menu-mobile {
-        background: #0f766e;
+      .mini-card {
+        background: white;
+        padding: 15px;
+        border-radius: 10px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        border-bottom: 3px solid transparent;
       }
-
       .welcome-banner {
         background: linear-gradient(135deg, #0f766e 0%, #115e59 100%);
         padding: 30px;
@@ -40,26 +44,10 @@
         align-items: center;
         justify-content: space-between;
       }
-      .schedule-card {
-        background: white;
-        border-radius: 12px;
-        padding: 20px;
-        border-left: 5px solid #0f766e;
-        margin-bottom: 15px;
-        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
-      }
     </style>
-
-    <link rel="stylesheet" href="../css/teacher.css" />
   </head>
   <body>
-    <div class="sidebar-overlay" onclick="toggleSidebar()"></div>
-
     <div class="app-container">
-      <button class="btn-menu-mobile" onclick="toggleSidebar()">
-        <i class="fa-solid fa-bars"></i>
-      </button>
-
       <aside class="sidebar">
         <div class="sidebar-header">
           <i class="fa-solid fa-chalkboard-user logo-icon"></i>
@@ -83,8 +71,7 @@
           >
             Wali Kelas
           </div>
-
-          <a href="teacher-reports.html" class="menu-item ">
+          <a href="teacher-reports.html" class="menu-item">
             <i class="fa-solid fa-chart-pie icon"></i> Laporan Kelas
           </a>
           <a href="teacher-attendance.html" class="menu-item">
@@ -98,19 +85,17 @@
           </a>
         </nav>
         <div class="sidebar-footer">
-          <a href="#" class="menu-item logout"
-            ><i class="fa-solid fa-right-from-bracket icon"></i> Keluar</a
-          >
+          <a href="#" id="btn-logout" class="menu-item logout">
+            <i class="fa-solid fa-right-from-bracket icon"></i> Keluar
+          </a>
         </div>
       </aside>
 
       <main class="main-content">
         <div class="welcome-banner">
           <div>
-            <h1 style="margin: 0; font-size: 24px">Selamat Pagi, Bpk. Agus!</h1>
-            <p style="margin: 5px 0 0 0; opacity: 0.9">
-              Semangat mengajar hari ini.
-            </p>
+            <h1 id="greeting-text">Selamat Datang</h1>
+            <p id="date-text" style="opacity: 0.9">Memuat tanggal...</p>
           </div>
           <i
             class="fa-solid fa-mug-hot"
@@ -118,45 +103,64 @@
           ></i>
         </div>
 
-        <h3 style="margin-bottom: 20px; color: #374151">Jadwal Hari Ini</h3>
-
-        <div class="schedule-card">
-          <div
-            style="
-              display: flex;
-              justify-content: space-between;
-              margin-bottom: 5px;
-            "
-          >
-            <strong style="color: #0f766e">07:30 - 09:30</strong>
-            <span class="badge active">Sedang Berlangsung</span>
+        <div class="stats-grid">
+          <div class="mini-card" style="border-bottom-color: #0f766e">
+            <div
+              style="
+                background: #ccfbf1;
+                padding: 10px;
+                border-radius: 50%;
+                color: #0f766e;
+              "
+            >
+              <i class="fa-solid fa-users"></i>
+            </div>
+            <div>
+              <h4 style="margin: 0; font-size: 12px; color: #6b7280">
+                Siswa Perwalian (<span id="nama-kelas-binaan">-</span>)
+              </h4>
+              <strong
+                style="font-size: 18px; color: #111827"
+                id="stat-total-siswa"
+                >0</strong
+              >
+            </div>
           </div>
-          <h4 style="margin: 0">Pemrograman Web Dasar</h4>
-          <p style="margin: 5px 0 0 0; color: #6b7280; font-size: 14px">
-            Kelas X RPL 1 • Lab Komputer 2
-          </p>
+          <div class="mini-card" style="border-bottom-color: #dc2626">
+            <div
+              style="
+                background: #fee2e2;
+                padding: 10px;
+                border-radius: 50%;
+                color: #dc2626;
+              "
+            >
+              <i class="fa-solid fa-triangle-exclamation"></i>
+            </div>
+            <div>
+              <h4 style="margin: 0; font-size: 12px; color: #6b7280">
+                Kasus Hari Ini
+              </h4>
+              <strong style="font-size: 18px; color: #111827" id="stat-kasus"
+                >0</strong
+              >
+            </div>
+          </div>
         </div>
 
-        <div class="schedule-card" style="border-left-color: #f59e0b">
-          <div
-            style="
-              display: flex;
-              justify-content: space-between;
-              margin-bottom: 5px;
-            "
-          >
-            <strong style="color: #f59e0b">10:00 - 12:00</strong>
-            <span class="badge warning">Akan Datang</span>
-          </div>
-          <h4 style="margin: 0">Basis Data</h4>
-          <p style="margin: 5px 0 0 0; color: #6b7280; font-size: 14px">
-            Kelas XI RPL 2 • Lab Komputer 1
-          </p>
+        <h3 style="margin-bottom: 20px; color: #374151">
+          Jadwal Mengajar Hari Ini
+        </h3>
+        <div id="schedule-container">
+          <p>Memuat jadwal...</p>
         </div>
       </main>
     </div>
 
-    <script type="module" src="../js/app.js"></script>
-    <script src="../js/utils/notifications.js"></script>a
+    <script src="../js/utils/notifications.js"></script>
+    <script
+      type="module"
+      src="../js/views/pages/dashboard/teacher-dashboard.js"
+    ></script>
   </body>
 </html>

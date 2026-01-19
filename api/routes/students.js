@@ -2,19 +2,14 @@ const express = require("express");
 const router = express.Router();
 const db = require("../config/db");
 
-// 1. GET: Ambil Semua Siswa (Hitung Total Poin dari tabel 'points')
+// =======================================================================
+// 1. GET: Ambil Semua Siswa (ADMIN VIEW)
+// =======================================================================
 router.get("/", async (req, res) => {
   try {
-    // KITA GUNAKAN "CASE WHEN" UNTUK MEMISAHKAN SUM BERDASARKAN TYPE
     const sql = `
             SELECT 
-                s.id, 
-                s.nis, 
-                s.nisn, 
-                s.nama_lengkap, 
-                s.jenis_kelamin AS gender, 
-                s.status, 
-                s.kelas_id,
+                s.id, s.nis, s.nisn, s.nama_lengkap, s.jenis_kelamin AS gender, s.status, s.kelas_id,
                 k.nama_kelas,
                 -- Hitung Total Prestasi (type = 'achievement')
                 COALESCE(SUM(CASE WHEN p.type = 'achievement' THEN p.point_amount ELSE 0 END), 0) as total_prestasi,
@@ -28,22 +23,54 @@ router.get("/", async (req, res) => {
         `;
 
     const [rows] = await db.query(sql);
-
-    res.json({
-      success: true,
-      data: rows,
-    });
+    res.json({ success: true, data: rows });
   } catch (error) {
-    console.error("Error Get Siswa:", error);
     res.status(500).json({ success: false, message: error.message });
   }
 });
 
-// 2. GET SINGLE: Ambil 1 Siswa
+// =======================================================================
+// 2. GET: Ambil Siswa Binaan Wali Kelas (TEACHER VIEW)
+// =======================================================================
+router.get("/teacher/:teacherId", async (req, res) => {
+  try {
+    const { teacherId } = req.params;
+
+    const sql = `
+      SELECT 
+        s.id, s.nis, s.nisn, s.nama_lengkap, s.jenis_kelamin AS gender, s.status,
+        k.nama_kelas,
+        COALESCE(SUM(CASE WHEN p.type = 'achievement' THEN p.point_amount ELSE 0 END), 0) as total_prestasi,
+        COALESCE(SUM(CASE WHEN p.type = 'violation' THEN p.point_amount ELSE 0 END), 0) as total_pelanggaran
+      FROM siswa s
+      JOIN kelas k ON s.kelas_id = k.id
+      LEFT JOIN points p ON s.id = p.student_id
+      WHERE k.wali_kelas_id = ?
+      GROUP BY s.id, k.nama_kelas
+      ORDER BY k.nama_kelas ASC, s.nama_lengkap ASC
+    `;
+
+    const [rows] = await db.query(sql, [teacherId]);
+    res.json({ success: true, data: rows });
+  } catch (error) {
+    console.error("Error Teacher Students:", error);
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
+// =======================================================================
+// 3. GET SINGLE: Ambil Detail 1 Siswa
+// =======================================================================
 router.get("/:id", async (req, res) => {
   try {
     const { id } = req.params;
-    // Query detail siswa juga perlu join untuk lihat total poin (opsional)
+
+    if (isNaN(id)) {
+      return res
+        .status(400)
+        .json({ success: false, message: "ID Siswa tidak valid" });
+    }
+
     const sql = `
         SELECT 
             s.id, s.nis, s.nisn, s.nama_lengkap, 
@@ -63,16 +90,15 @@ router.get("/:id", async (req, res) => {
         .json({ success: false, message: "Siswa tidak ditemukan" });
     }
 
-    res.json({
-      success: true,
-      data: rows[0],
-    });
+    res.json({ success: true, data: rows[0] });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
 });
 
-// 3. POST: Tambah Siswa Baru
+// =======================================================================
+// 4. POST: Tambah Siswa Baru (FIXED)
+// =======================================================================
 router.post("/", async (req, res) => {
   try {
     const { nis, nisn, nama_lengkap, gender, kelas_id, status } = req.body;
@@ -84,18 +110,18 @@ router.post("/", async (req, res) => {
       });
     }
 
-    // --- LOGIC PENTING: Handle NISN Kosong ---
-    // Jika nisn kosong string (""), ubah jadi NULL agar tidak error duplicate di database
     const finalNisn = nisn && nisn.trim() !== "" ? nisn : null;
 
+    // --- PERBAIKAN DI SINI ---
+    // Hapus kolom 'poin' dan value '0' karena tabel siswa tidak punya kolom poin.
     const sql = `
-            INSERT INTO siswa (nis, nisn, nama_lengkap, jenis_kelamin, kelas_id, status, poin) 
-            VALUES (?, ?, ?, ?, ?, ?, 0)
+            INSERT INTO siswa (nis, nisn, nama_lengkap, jenis_kelamin, kelas_id, status) 
+            VALUES (?, ?, ?, ?, ?, ?)
         `;
 
     await db.execute(sql, [
       nis,
-      finalNisn, // Pakai variable yang sudah dicheck null
+      finalNisn,
       nama_lengkap,
       gender,
       kelas_id,
@@ -107,26 +133,23 @@ router.post("/", async (req, res) => {
       message: "Siswa berhasil ditambahkan!",
     });
   } catch (error) {
-    // Cek Error Duplicate
     if (error.code === "ER_DUP_ENTRY") {
-      // Cek apakah yang duplikat NIS atau NISN
       const msg = error.sqlMessage.includes("nisn")
         ? "NISN sudah digunakan siswa lain!"
         : "NIS sudah terdaftar!";
-
       return res.status(400).json({ success: false, message: msg });
     }
     res.status(500).json({ success: false, message: error.message });
   }
 });
 
-// 4. PUT: Update Data Siswa
+// =======================================================================
+// 5. PUT: Update Data Siswa
+// =======================================================================
 router.put("/:id", async (req, res) => {
   try {
     const { id } = req.params;
     const { nis, nisn, nama_lengkap, gender, kelas_id, status } = req.body;
-
-    // --- Handle NISN Kosong ---
     const finalNisn = nisn && nisn.trim() !== "" ? nisn : null;
 
     const sql = `
@@ -137,7 +160,7 @@ router.put("/:id", async (req, res) => {
 
     await db.query(sql, [
       nis,
-      finalNisn, // Pakai NULL jika kosong
+      finalNisn,
       nama_lengkap,
       gender,
       kelas_id,
@@ -145,10 +168,7 @@ router.put("/:id", async (req, res) => {
       id,
     ]);
 
-    res.json({
-      success: true,
-      message: "Data siswa berhasil diperbarui!",
-    });
+    res.json({ success: true, message: "Data siswa berhasil diperbarui!" });
   } catch (error) {
     if (error.code === "ER_DUP_ENTRY") {
       const msg = error.sqlMessage.includes("nisn")
@@ -160,38 +180,9 @@ router.put("/:id", async (req, res) => {
   }
 });
 
-// 4. PUT: Update Data Siswa
-router.put("/:id", async (req, res) => {
-  try {
-    const { id } = req.params;
-    const { nis, nisn, nama_lengkap, gender, kelas_id, status } = req.body;
-
-    const sql = `
-            UPDATE siswa 
-            SET nis = ?, nisn = ?, nama_lengkap = ?, jenis_kelamin = ?, kelas_id = ?, status = ?
-            WHERE id = ?
-        `;
-
-    await db.query(sql, [
-      nis,
-      nisn,
-      nama_lengkap,
-      gender,
-      kelas_id,
-      status || "aktif",
-      id,
-    ]);
-
-    res.json({
-      success: true,
-      message: "Data siswa berhasil diperbarui!",
-    });
-  } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
-  }
-});
-
-// 5. DELETE: Hapus Siswa
+// =======================================================================
+// 6. DELETE: Hapus Siswa
+// =======================================================================
 router.delete("/:id", async (req, res) => {
   try {
     const { id } = req.params;

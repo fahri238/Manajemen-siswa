@@ -1,81 +1,58 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
-const db = require('../config/db');
+const db = require("../config/db");
 
 // --- API LOGIN (POST /api/auth/login) ---
-router.post('/login', async (req, res) => {
-    // 1. Tangkap input dari Frontend
+router.post("/login", async (req, res) => {
+  try {
     const { username, password } = req.body;
 
-    // Validasi input kosong
-    if (!username || !password) {
-        return res.status(400).json({
-            success: false,
-            message: 'Username dan password wajib diisi!'
-        });
+    /**
+     * PERBAIKAN: 
+     * Menggunakan COALESCE untuk mengambil nama dari tabel users (u.nama_lengkap)
+     * jika data di tabel siswa (s.nama_lengkap) kosong.
+     */
+    const sql = `
+      SELECT 
+        u.id, 
+        u.username, 
+        u.role, 
+        u.student_id, 
+        COALESCE(s.nama_lengkap, u.nama_lengkap, u.username) AS nama_tampilan,
+        s.kelas_id, 
+        k.nama_kelas
+      FROM users u
+      LEFT JOIN siswa s ON u.student_id = s.id
+      LEFT JOIN kelas k ON s.kelas_id = k.id
+      WHERE u.username = ? AND u.password = ?
+    `;
+
+    const [rows] = await db.query(sql, [username, password]);
+
+    if (rows.length > 0) {
+      const user = rows[0];
+      res.json({
+        success: true,
+        data: {
+          id: user.student_id || user.id, 
+          userId: user.id,
+          username: user.username,
+          role: user.role,
+          nama_lengkap: user.nama_tampilan, // Sekarang berisi nama Guru atau Siswa
+          nama_kelas: user.nama_kelas || null,
+        },
+      });
+    } else {
+      res.status(401).json({ success: false, message: "Username atau Password salah!" });
     }
-
-    try {
-        // 2. Cari User di Database berdasarkan Username
-        // Kita gunakan '?' untuk mencegah SQL Injection
-        const sql = 'SELECT * FROM users WHERE username = ? LIMIT 1';
-        const [rows] = await db.query(sql, [username]);
-
-        // 3. Cek apakah user ditemukan?
-        if (rows.length === 0) {
-            return res.status(401).json({
-                success: false,
-                message: 'Username tidak ditemukan.'
-            });
-        }
-
-        const user = rows[0];
-
-        // 4. Cek Password
-        // CATATAN: Untuk saat ini kita pakai perbandingan langsung (Plain Text)
-        // sesuai data dummy "123" yang Anda masukkan di SQL.
-        // Di aplikasi nyata, Anda wajib menggunakan library 'bcrypt' untuk hashing.
-        if (password !== user.password) {
-            return res.status(401).json({
-                success: false,
-                message: 'Password salah.'
-            });
-        }
-
-        // 5. Jika Sukses: Update Waktu Login Terakhir
-        await db.query('UPDATE users SET last_login = NOW() WHERE id = ?', [user.id]);
-
-        // 6. Kirim Response Sukses ke Frontend
-        res.json({
-            success: true,
-            message: 'Login berhasil!',
-            data: {
-                id: user.id,
-                username: user.username,
-                name: user.nama_lengkap, // Sesuai kolom database
-                role: user.role,         // admin/guru
-                foto: user.foto || 'default.png'
-            }
-        });
-
-    } catch (error) {
-        console.error("Login Error:", error); // Tampilkan di terminal backend jika error
-        res.status(500).json({
-            success: false,
-            message: 'Terjadi kesalahan pada server database.',
-            error: error.message
-        });
-    }
+  } catch (error) {
+    console.error("Login Error:", error);
+    res.status(500).json({ success: false, message: error.message });
+  }
 });
 
-// --- API LOGOUT (POST /api/auth/logout) ---
-// Opsional: Karena kita pakai token/session di frontend (localStorage),
-// backend tidak terlalu butuh logika logout, tapi kita sediakan saja.
-router.post('/logout', (req, res) => {
-    res.json({
-        success: true,
-        message: 'Logout berhasil'
-    });
+router.post("/logout", (req, res) => {
+  res.json({ success: true, message: "Logout berhasil" });
 });
 
 module.exports = router;

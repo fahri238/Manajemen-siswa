@@ -144,4 +144,29 @@ router.delete("/:id", async (req, res) => {
   }
 });
 
+router.get("/teacher/:teacherId", async (req, res) => {
+  try {
+    const { teacherId } = req.params;
+
+    // Perbaikan Query: Filter berdasarkan guru_id yang sedang login
+    const sql = `
+      SELECT 
+        j.id, j.hari, j.jam_mulai, j.jam_selesai,
+        k.nama_kelas,
+        m.nama_mapel as nama_pelajaran -- Sesuaikan nama kolom mapel Anda
+      FROM jadwal_pelajaran j
+      JOIN kelas k ON j.kelas_id = k.id
+      JOIN mata_pelajaran m ON j.mapel_id = m.id
+      WHERE j.guru_id = ?
+      ORDER BY FIELD(j.hari, 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'), j.jam_mulai ASC
+    `;
+
+    const [rows] = await db.query(sql, [teacherId]);
+    res.json({ success: true, data: rows });
+  } catch (error) {
+    console.error("Error Fetch Teacher Schedule:", error);
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
 module.exports = router;

@@ -1,111 +1,80 @@
-// js/views/pages/schedules/student-view.js
+import { SessionManager } from "../../../auth/session.js";
 
-// --- MOCK DATA ---
-// 1. Data Siswa Login (Kita asumsikan dia kelas ID 1)
-const studentInfo = {
-    class_id: 1, // X RPL 1
-    class_name: "X RPL 1"
-};
-
-// 2. Data Mapel
-const subjectsData = [
-    { id: 1, name: "Matematika (Wajib)", teacher: "Bpk. Agus" },
-    { id: 2, name: "Bahasa Indonesia", teacher: "Ibu Siti" },
-    { id: 3, name: "Pemrograman Web", teacher: "Bpk. Budi" },
-    { id: 4, name: "Basis Data", teacher: "Bpk. Budi" },
-    { id: 5, name: "PJOK", teacher: "Pak Roni" },
-    { id: 99, name: "Istirahat", teacher: "-" }
-];
-
-// 3. Data Jadwal (Semua Kelas)
-const schedulesData = [
-    // Senin
-    { class_id: 1, day: "Senin", start: "07:00", end: "07:30", subject_id: 0, custom: "Upacara Bendera" },
-    { class_id: 1, day: "Senin", start: "07:30", end: "09:30", subject_id: 1 },
-    { class_id: 1, day: "Senin", start: "09:30", end: "10:00", subject_id: 99 },
-    { class_id: 1, day: "Senin", start: "10:00", end: "12:00", subject_id: 3 },
-    
-    // Selasa
-    { class_id: 1, day: "Selasa", start: "07:30", end: "09:30", subject_id: 4 },
-    { class_id: 1, day: "Selasa", start: "09:30", end: "10:00", subject_id: 99 },
-    { class_id: 1, day: "Selasa", start: "10:00", end: "11:30", subject_id: 2 },
-    
-    // Rabu
-    { class_id: 1, day: "Rabu", start: "07:30", end: "09:30", subject_id: 5 },
-    { class_id: 2, day: "Rabu", start: "07:30", end: "09:30", subject_id: 1 } // Jadwal kelas lain (tidak boleh muncul)
-];
+const API_SCHEDULE_BY_ID =
+  "http://localhost:5000/api/dashboard/student-full-by-id";
 
 document.addEventListener("DOMContentLoaded", () => {
-    renderSchedule();
+  const user = SessionManager.getUser();
+
+  if (!user) {
+    window.location.href = "../../index.html";
+    return;
+  }
+
+  // Pastikan UI profil tetap terisi (Zahida, OTKP 1)
+  updateProfileUI(user);
+
+  // Panggil data jadwal dari database menggunakan ID Siswa (id: 11)
+  fetchSchedules(user.id);
 });
 
-function renderSchedule() {
-    const container = document.getElementById("schedule-container");
-    const days = ["Senin", "Selasa", "Rabu", "Kamis", "Jumat"];
+async function fetchSchedules(studentId) {
+  const container = document.getElementById("schedule-container");
+  try {
+    const response = await fetch(`${API_SCHEDULE_BY_ID}/${studentId}`);
+    const result = await response.json();
 
-    container.innerHTML = "";
+    if (result.success) {
+      renderScheduleCards(result.data);
+      document.getElementById("class-subtitle").innerText =
+        "Jadwal Pelajaran Terkini";
+    } else {
+      container.innerHTML = `<p style="text-align:center; padding:20px;">${result.message}</p>`;
+    }
+  } catch (error) {
+    console.error("Database Error:", error);
+  }
+}
 
-    days.forEach(day => {
-        // 1. Filter Jadwal Kelas Siswa & Per Hari
-        const dailySchedules = schedulesData.filter(s => 
-            s.class_id === studentInfo.class_id && s.day === day
-        );
+function updateProfileUI(user) {
+  const initials = user.nama_lengkap
+    .split(" ")
+    .map((n) => n[0])
+    .join("")
+    .toUpperCase();
+  document.getElementById("user-initials").innerText = initials;
+  document.getElementById("user-name-sidebar").innerText = user.nama_lengkap;
+  document.getElementById("user-class-sidebar").innerText =
+    user.nama_kelas || "-";
+}
 
-        // Sort jam
-        dailySchedules.sort((a, b) => a.start.localeCompare(b.start));
+function renderScheduleCards(schedules) {
+  const container = document.getElementById("schedule-container");
+  const days = ["Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"];
+  container.innerHTML = "";
 
-        // 2. Build HTML
-        let listHTML = "";
+  days.forEach((day) => {
+    const dailyData = schedules.filter((s) => s.hari === day);
+    let listHtml =
+      dailyData.length > 0
+        ? ""
+        : `<li class="schedule-item" style="color:#94a3b8; font-style:italic; justify-content:center; padding:20px;">Tidak ada jadwal</li>`;
 
-        if (dailySchedules.length > 0) {
-            dailySchedules.forEach(sch => {
-                let subjectName = sch.custom || "Unknown";
-                let teacherName = "";
-
-                if (sch.subject_id > 0) {
-                    const sub = subjectsData.find(s => s.id === sch.subject_id);
-                    if (sub) {
-                        subjectName = sub.name;
-                        teacherName = sub.teacher;
-                    }
-                }
-
-                // Styling beda buat istirahat
-                const isBreak = sch.subject_id === 99;
-                const bgStyle = isBreak ? 'background-color: #f8fafc;' : '';
-
-                listHTML += `
-                    <li class="schedule-item" style="${bgStyle}">
-                        <div class="time-badge">
-                            ${sch.start}<br>s.d<br>${sch.end}
-                        </div>
-                        <div class="subject-info">
-                            <h4 style="${isBreak ? 'color:#64748B; font-style:italic;' : ''}">
-                                ${subjectName}
-                            </h4>
-                            ${teacherName !== "-" && teacherName !== "" ? 
-                                `<p><i class="fa-solid fa-chalkboard-user"></i> ${teacherName}</p>` : ''}
-                        </div>
-                    </li>
-                `;
-            });
-        } else {
-            listHTML = `<li class="schedule-item" style="color:#94a3b8; font-style:italic; justify-content:center;">Tidak ada jadwal.</li>`;
-        }
-
-        // 3. Render Card
-        const card = `
-            <div class="day-card">
-                <div class="day-header">
-                    <span>${day}</span>
-                    <i class="fa-regular fa-calendar"></i>
-                </div>
-                <ul class="schedule-list">
-                    ${listHTML}
-                </ul>
-            </div>
-        `;
-
-        container.innerHTML += card;
+    dailyData.forEach((item) => {
+      listHtml += `
+                <li class="schedule-item">
+                    <div class="time-badge">${item.jam_mulai.slice(0, 5)}<br>s.d<br>${item.jam_selesai.slice(0, 5)}</div>
+                    <div class="subject-info">
+                        <h4>${item.nama_mapel}</h4>
+                        <p><i class="fa-solid fa-chalkboard-user"></i> ${item.nama_guru || "Guru Mapel"}</p>
+                    </div>
+                </li>`;
     });
+
+    container.innerHTML += `
+            <div class="day-card">
+                <div class="day-header"><span>${day}</span><i class="fa-regular fa-calendar"></i></div>
+                <ul class="schedule-list">${listHtml}</ul>
+            </div>`;
+  });
 }

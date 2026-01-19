@@ -1,23 +1,30 @@
-// Ganti URL sesuai backend Anda
+import { SessionManager } from "../../../auth/session.js";
+
+// Endpoint Backend
 const API_BASE = "http://localhost:5000/api/schedules/teacher";
 
 document.addEventListener("DOMContentLoaded", () => {
-  // 1. Cek Sesi Login (Pastikan User adalah Guru)
-  const session = JSON.parse(localStorage.getItem("user_session"));
+  // 1. Ambil Sesi Menggunakan SessionManager
+  const user = SessionManager.getUser();
 
-  if (!session || session.role !== "guru") {
-    alert("Akses ditolak! Silakan login sebagai guru.");
-    window.location.href = "../index.html"; // Redirect ke Login
+  if (!user || user.role !== "guru") {
+    Notifications.error("Akses ditolak! Silakan login kembali.");
+    window.location.href = "../index.html";
     return;
   }
 
   // 2. Load Jadwal Guru Tersebut
-  loadTeacherSchedule(session.id);
+  loadTeacherSchedule(user.id);
 });
 
 async function loadTeacherSchedule(teacherId) {
   const container = document.getElementById("schedule-container");
-  container.innerHTML = `<p style="text-align:center; col-span:3;">Memuat jadwal Anda...</p>`;
+  if (!container) return;
+
+  container.innerHTML = `<div style="grid-column: 1/-1; text-align:center; padding: 40px;">
+                                <i class="fa-solid fa-spinner fa-spin" style="font-size: 2rem; color: #0f766e;"></i>
+                                <p style="margin-top:10px;">Memuat jadwal mengajar Anda...</p>
+                           </div>`;
 
   try {
     const res = await fetch(`${API_BASE}/${teacherId}`);
@@ -26,16 +33,14 @@ async function loadTeacherSchedule(teacherId) {
     container.innerHTML = "";
 
     if (result.success) {
-      // Kita siapkan array hari agar urutannya pas
+      // Urutan Hari Indonesia
       const daysOrder = ["Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"];
 
       // Grouping Data berdasarkan Hari
-      // Contoh hasil: { "Senin": [data1, data2], "Selasa": [] }
       const groupedSchedule = {};
       daysOrder.forEach((day) => (groupedSchedule[day] = []));
 
       result.data.forEach((item) => {
-        console.log("DATA DARI SERVER:", item);
         if (groupedSchedule[item.hari]) {
           groupedSchedule[item.hari].push(item);
         }
@@ -44,21 +49,21 @@ async function loadTeacherSchedule(teacherId) {
       // Render Card Per Hari
       daysOrder.forEach((day) => {
         const schedules = groupedSchedule[day];
-
-        // Jika hari itu ada jadwal, ATAU mau tetap menampilkan kartu kosong (opsional)
-        // Di sini saya render semua hari agar terlihat rapi (Senin-Sabtu)
         const card = createDayCard(day, schedules);
         container.innerHTML += card;
       });
+    } else {
+      Notifications.error(result.message || "Gagal mengambil data jadwal.");
+      container.innerHTML = `<p style="grid-column: 1/-1; text-align:center; color:red;">${result.message}</p>`;
     }
   } catch (error) {
-    console.error(error);
-    container.innerHTML = `<p style="color:red; text-align:center;">Gagal memuat jadwal.</p>`;
+    console.error("Schedule Error:", error);
+    Notifications.error("Gagal terhubung ke server.");
+    container.innerHTML = `<p style="grid-column: 1/-1; text-align:center; color:red;">Gagal memuat jadwal. Pastikan server aktif.</p>`;
   }
 }
 
 function createDayCard(dayName, schedules) {
-  // 1. Header Card
   let html = `
         <div class="day-card">
             <div class="day-header">
@@ -68,7 +73,6 @@ function createDayCard(dayName, schedules) {
             <div class="day-body">
     `;
 
-  // 2. Isi Jadwal (Looping)
   if (schedules.length > 0) {
     schedules.forEach((item) => {
       // Format Jam (07:00:00 -> 07:00)
@@ -82,25 +86,26 @@ function createDayCard(dayName, schedules) {
                     </div>
                     <div class="lesson-info">
                         <h4>${item.nama_kelas}</h4>
-                        <p>
-                            <i class="fa-solid fa-book-open" style="margin-right:5px;"></i> 
-                            ${item.nama_mapel} (${item.kode_mapel})
+                        <p title="${item.nama_mapel}">
+                            <i class="fa-solid fa-book-open" style="margin-right:5px; color: #0f766e;"></i> 
+                            ${item.nama_mapel}
                         </p>
+                        <small style="color: #6b7280; display: block; margin-top: 2px;">
+                            <i class="fa-solid fa-fingerprint" style="margin-right:5px;"></i> ${item.kode_mapel || "-"}
+                        </small>
                     </div>
                 </div>
             `;
     });
   } else {
-    // State Kosong (Libur / Tidak ada jadwal)
     html += `
-            <div class="empty-state">
-                <i class="fa-solid fa-mug-hot" style="font-size: 24px; margin-bottom: 10px; display:block;"></i>
-                Tidak ada jadwal mengajar.
+            <div class="empty-state" style="padding: 20px; text-align:center; color: #9ca3af;">
+                <i class="fa-solid fa-mug-hot" style="font-size: 24px; margin-bottom: 10px; display:block; opacity: 0.5;"></i>
+                <span style="font-size: 13px;">Tidak ada jadwal mengajar.</span>
             </div>
         `;
   }
 
-  // 3. Tutup Card
   html += `
             </div>
         </div>
