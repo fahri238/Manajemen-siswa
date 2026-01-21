@@ -1,0 +1,221 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Kelola Pengumuman - Siswa Manager</title>
+
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+      rel="stylesheet"
+    />
+
+    <link rel="stylesheet" href="../css/style.css" />
+    <link rel="stylesheet" href="../css/tables.css" />
+    <link rel="stylesheet" href="../css/forms.css" />
+    <link rel="stylesheet" href="../css/notifications.css" />
+    <link rel="stylesheet" href="../css/responsive.css" />
+
+    <style>
+      .announcement-layout {
+        display: grid;
+        grid-template-columns: 400px 1fr;
+        gap: 25px;
+        align-items: start;
+      }
+      .input-card {
+        background: white;
+        padding: 25px;
+        border-radius: 16px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        border: 1px solid rgba(0, 0, 0, 0.03);
+        position: sticky;
+        top: 20px;
+      }
+      textarea.form-control {
+        min-height: 120px;
+        resize: vertical;
+      }
+      .status-badge {
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 500;
+      }
+      .status-info {
+        background: #e0f2fe;
+        color: #0369a1;
+      } /* Info */
+      .status-danger {
+        background: #fef3c7;
+        color: #92400e;
+      } /* Penting */
+      .status-success {
+        background: #d1fae5;
+        color: #065f46;
+      } /*kegiatan*/
+      .status-secondary {
+        background: #f3e8ff;
+        color: #7e22ce;
+      }
+      @media (max-width: 1024px) {
+        .announcement-layout {
+          grid-template-columns: 1fr;
+        }
+        .input-card {
+          position: static;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="sidebar-overlay" onclick="toggleSidebar()"></div>
+
+    <div class="app-container">
+      <button class="btn-menu-mobile" onclick="toggleSidebar()">
+        <i class="fa-solid fa-bars"></i>
+      </button>
+
+      <aside class="sidebar">
+        <div class="sidebar-header">
+          <i class="fa-solid fa-school-flag logo-icon"></i>
+          <h2>SISWA MANAGER</h2>
+        </div>
+        <nav class="sidebar-menu">
+          <a href="../dashboard.html" class="menu-item">
+            <i class="fa-solid fa-gauge-high icon"></i> Dashboard
+          </a>
+          <a href="classes.html" class="menu-item">
+            <i class="fa-solid fa-school icon"></i> Data Kelas
+          </a>
+          <a href="schedules.html" class="menu-item">
+            <i class="fa-solid fa-calendar-days icon"></i> Jadwal Pelajaran
+          </a>
+          <a href="subjects.html" class="menu-item">
+            <i class="fa-solid fa-book icon"></i> Mata Pelajaran
+          </a>
+          <a href="students.html" class="menu-item">
+            <i class="fa-solid fa-user-graduate icon"></i> Data Siswa
+          </a>
+          <a href="#" class="menu-item">
+            <i class="fa-solid fa-chalkboard-user icon"></i> Data Guru
+          </a>
+          <a href="points.html" class="menu-item">
+            <i class="fa-solid fa-star icon"></i> Poin & Prestasi
+          </a>
+          <a href="#" class="menu-item active"
+            ><i class="fa-solid fa-bullhorn icon"></i> Pengumuman</a
+          >
+          <a href="reports.html" class="menu-item">
+            <i class="fa-solid fa-file-invoice icon"></i> Laporan
+          </a>
+        </nav>
+      </aside>
+
+      <main class="main-content">
+        <header class="top-bar">
+          <div>
+            <h1>Kelola Pengumuman</h1>
+            <p class="subtitle">
+              Buat dan sebar informasi penting untuk seluruh siswa.
+            </p>
+          </div>
+        </header>
+
+        <div class="announcement-layout">
+          <div class="input-card">
+            <div
+              class="input-header"
+              style="
+                border-bottom: 1px solid #f3f4f6;
+                padding-bottom: 15px;
+                margin-bottom: 20px;
+              "
+            >
+              <h3 style="font-size: 16px; color: #1f2937; margin: 0">
+                <i class="fa-solid fa-plus-circle"></i> Buat Pengumuman Baru
+              </h3>
+            </div>
+
+            <form
+              id="form-announcement"
+              onsubmit="window.handleSaveAnnouncement(event)"
+            >
+              <div class="form-group">
+                <label>Judul Pengumuman</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="input-title"
+                  placeholder="Contoh: Libur Semester Ganjil"
+                  required
+                />
+              </div>
+
+              <div class="form-group">
+                <label>Kategori</label>
+                <select class="form-control" id="input-category">
+                  <option value="Umum">Umum</option>
+                  <option value="Akademik">Akademik</option>
+                  <option value="Keuangan">Keuangan</option>
+                  <option value="Kegiatan">Kegiatan</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label>Isi Pengumuman</label>
+                <textarea
+                  class="form-control"
+                  id="input-content"
+                  placeholder="Tuliskan detail pengumuman di sini..."
+                  required
+                ></textarea>
+              </div>
+
+              <button
+                type="submit"
+                class="btn-primary"
+                style="width: 100%; justify-content: center; margin-top: 10px"
+              >
+                Publikasikan Informasi
+              </button>
+            </form>
+          </div>
+
+          <div class="table-container">
+            <h3 style="font-size: 16px; color: #334155; padding: 15px">
+              Daftar Pengumuman Aktif
+            </h3>
+            <table class="premium-table">
+              <thead>
+                <tr>
+                  <th>Tanggal</th>
+                  <th>Judul & Kategori</th>
+                  <th>Isi Singkat</th>
+                  <th>Target</th>
+                  <th style="text-align: right">Aksi</th>
+                </tr>
+              </thead>
+              <tbody id="announcement-body">
+                <tr>
+                  <td colspan="5" style="text-align: center">Memuat data...</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </main>
+    </div>
+
+    <script src="../js/utils/notifications.js"></script>
+    <script type="module" src="../js/app.js"></script>
+    <script
+      type="module"
+      src="../js/views/pages/announcements/list.js"
+    ></script>
+  </body>
+</html>

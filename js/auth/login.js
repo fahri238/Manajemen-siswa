@@ -34,15 +34,18 @@ document.addEventListener("DOMContentLoaded", () => {
       const result = await response.json();
 
       if (result.success) {
-        // Simpan Sesi ke LocalStorage
+        const userData = {
+          id: result.data.id,
+          username: result.data.username,
+          role: result.data.role, // Pastikan backend mengirim field 'role'
+          nama: result.data.nama_lengkap,
+        };
+
+        // Gunakan nama key "user_session" agar cocok dengan list.js
+        localStorage.setItem("user_session", JSON.stringify(userData));
+
+        // Tetap panggil SessionManager jika memang diperlukan modul lain
         SessionManager.login(result.data);
-
-        // Ambil nama dari data yang dikirim backend (nama_lengkap)
-        const displayName = result.data.nama_lengkap || result.data.username;
-
-        if (typeof Notifications !== "undefined") {
-          Notifications.success(`Selamat datang, ${displayName}!`);
-        }
 
         // --- LOGIKA REDIRECT BERDASARKAN ROLE ---
         let redirectUrl = "index.html";

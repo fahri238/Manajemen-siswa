@@ -2,22 +2,34 @@
 const API_BASE = "http://localhost:5000/api/schedules/teacher";
 
 document.addEventListener("DOMContentLoaded", () => {
-  // 1. Cek Sesi Login (Pastikan User adalah Guru)
+  // 1. Cek Sesi Login (Izinkan Admin ATAU Guru)
   const session = JSON.parse(localStorage.getItem("user_session"));
 
-  if (!session || session.role !== "guru") {
-    alert("Akses ditolak! Silakan login sebagai guru.");
+  // Perbaikan Logika: Admin atau Guru boleh lewat
+  if (!session || (session.role !== "guru" && session.role !== "admin")) {
+    alert("Akses ditolak! Silakan login kembali.");
     window.location.href = "../index.html"; // Redirect ke Login
     return;
   }
 
-  // 2. Load Jadwal Guru Tersebut
-  loadTeacherSchedule(session.id);
+  // 2. Load Jadwal Guru
+  // Jika yang login adalah Guru, load jadwal miliknya sendiri
+  // Jika Admin, kita bisa me-load data guru tertentu (opsional)
+  if (session.role === "guru") {
+    loadTeacherSchedule(session.id);
+  } else if (session.role === "admin") {
+    // Jika di halaman list guru admin, panggil fungsi load data guru
+    console.log("Admin mengakses data guru");
+  }
 });
 
 async function loadTeacherSchedule(teacherId) {
   const container = document.getElementById("schedule-container");
-  container.innerHTML = `<p style="text-align:center; col-span:3;">Memuat jadwal Anda...</p>`;
+
+  // Pastikan elemen container ada di HTML sebelum memuat
+  if (!container) return;
+
+  container.innerHTML = `<p style="text-align:center;">Memuat jadwal Anda...</p>`;
 
   try {
     const res = await fetch(`${API_BASE}/${teacherId}`);
@@ -25,12 +37,8 @@ async function loadTeacherSchedule(teacherId) {
 
     container.innerHTML = "";
 
-    if (result.success) {
-      // Kita siapkan array hari agar urutannya pas
+    if (result.success && result.data) {
       const daysOrder = ["Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"];
-
-      // Grouping Data berdasarkan Hari
-      // Contoh hasil: { "Senin": [data1, data2], "Selasa": [] }
       const groupedSchedule = {};
       daysOrder.forEach((day) => (groupedSchedule[day] = []));
 
@@ -40,12 +48,8 @@ async function loadTeacherSchedule(teacherId) {
         }
       });
 
-      // Render Card Per Hari
       daysOrder.forEach((day) => {
         const schedules = groupedSchedule[day];
-
-        // Jika hari itu ada jadwal, ATAU mau tetap menampilkan kartu kosong (opsional)
-        // Di sini saya render semua hari agar terlihat rapi (Senin-Sabtu)
         const card = createDayCard(day, schedules);
         container.innerHTML += card;
       });
@@ -57,7 +61,6 @@ async function loadTeacherSchedule(teacherId) {
 }
 
 function createDayCard(dayName, schedules) {
-  // 1. Header Card
   let html = `
         <div class="day-card">
             <div class="day-header">
@@ -67,10 +70,8 @@ function createDayCard(dayName, schedules) {
             <div class="day-body">
     `;
 
-  // 2. Isi Jadwal (Looping)
-  if (schedules.length > 0) {
+  if (schedules && schedules.length > 0) {
     schedules.forEach((item) => {
-      // Format Jam (07:00:00 -> 07:00)
       const start = item.jam_mulai.substring(0, 5);
       const end = item.jam_selesai.substring(0, 5);
 
@@ -90,7 +91,6 @@ function createDayCard(dayName, schedules) {
             `;
     });
   } else {
-    // State Kosong (Libur / Tidak ada jadwal)
     html += `
             <div class="empty-state">
                 <i class="fa-solid fa-mug-hot" style="font-size: 24px; margin-bottom: 10px; display:block;"></i>
@@ -99,7 +99,6 @@ function createDayCard(dayName, schedules) {
         `;
   }
 
-  // 3. Tutup Card
   html += `
             </div>
         </div>

@@ -53,6 +53,8 @@ app.use("/api/reports", reportRoutes); // <--- TAMBAH
 // attendance
 app.use("/api/attendance", require("./routes/attendance"));
 
+const announcementRoutes = require('./routes/announcements');
+app.use('/api/announcements', announcementRoutes);
 
 // Jalankan Server
 app.listen(PORT, () => {
