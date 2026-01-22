@@ -149,59 +149,38 @@ router.get("/teacher-stats/:teacherId", async (req, res) => {
 // =======================================================================
 // 3. DASHBOARD SISWA (Route: /api/dashboard/student/:studentId)
 // =======================================================================
-router.get("/student/:studentId", async (req, res) => {
+router.get("/student/:id", async (req, res) => {
   try {
-    const { studentId } = req.params;
+    const { id } = req.params;
 
-    // A. Ambil Info Siswa
-    const [studentInfo] = await db.query(
-      `SELECT s.nama_lengkap, s.status, k.nama_kelas, k.id as kelas_id 
-       FROM siswa s 
-       JOIN kelas k ON s.kelas_id = k.id 
-       WHERE s.id = ?`,
-      [studentId],
-    );
-
-    // PENTING: Jika siswa tidak ada, kirim response dan SELESAI (pakai return)
-    if (studentInfo.length === 0) {
+    // 1. Ambil NIS berdasarkan ID User login
+    const [user] = await db.query("SELECT username FROM users WHERE id = ?", [
+      id,
+    ]);
+    if (user.length === 0)
       return res
         .status(404)
-        .json({ success: false, message: "Siswa tidak ditemukan" });
-    }
+        .json({ success: false, message: "User tidak ditemukan" });
 
-    // B. Hitung Statistik Poin
-    const [statsPoin] = await db.query(
-      `SELECT 
-        COALESCE(SUM(CASE WHEN type = 'violation' THEN point_amount ELSE 0 END), 0) as total_pelanggaran,
-        COALESCE(SUM(CASE WHEN type = 'achievement' THEN point_amount ELSE 0 END), 0) as total_prestasi
-       FROM points WHERE student_id = ?`,
-      [studentId],
-    );
+    const nis = user[0].username;
 
-    // C. Hitung Kehadiran
-    const [statsAbsensi] = await db.query(
-      `SELECT 
-        COUNT(*) as total_hari,
-        SUM(CASE WHEN status = 'Hadir' THEN 1 ELSE 0 END) as total_hadir
-       FROM absensi WHERE siswa_id = ?`,
-      [studentId],
-    );
+    // 2. Ambil data profil siswa dan kelas
+    const sql = `
+      SELECT s.id as student_id, s.nama_lengkap, k.nama_kelas, s.kelas_id
+      FROM siswa s
+      LEFT JOIN kelas k ON s.kelas_id = k.id
+      WHERE s.nis = ?
+    `;
+    const [profile] = await db.query(sql, [nis]);
+    if (profile.length === 0)
+      return res
+        .status(404)
+        .json({ success: false, message: "Profil siswa tidak ditemukan" });
 
-    let persentaseHadir = 0;
-    if (statsAbsensi[0].total_hari > 0) {
-      persentaseHadir = Math.round(
-        (statsAbsensi[0].total_hadir / statsAbsensi[0].total_hari) * 100,
-      );
-    }
+    const p = profile[0];
 
-    // D. Ambil Pengumuman (KODE BARU)
-    const [announcements] = await db.query(
-      `SELECT title, content, category, DATE_FORMAT(created_at, '%d %b') as tanggal 
-       FROM announcements ORDER BY created_at DESC LIMIT 3`,
-    );
-
-    // E. Ambil Jadwal Hari Ini
-    const days = [
+    // 3. Logika Hari Ini (Bahasa Indonesia)
+    const hariIndo = [
       "Minggu",
       "Senin",
       "Selasa",
@@ -210,33 +189,51 @@ router.get("/student/:studentId", async (req, res) => {
       "Jumat",
       "Sabtu",
     ];
-    const todayName = days[new Date().getDay()];
+    const namaHariIni = hariIndo[new Date().getDay()];
 
+    // 4. Ambil Jadwal Hari Ini (SEBELUMNYA KOSONG, SEKARANG DIISI)
     const [schedules] = await db.query(
-      `SELECT j.*, m.nama_mapel 
-       FROM jadwal_pelajaran j
-       JOIN mata_pelajaran m ON j.mapel_id = m.id
-       WHERE j.kelas_id = ? AND j.hari = ?
-       ORDER BY j.jam_mulai ASC`,
-      [studentInfo[0].kelas_id, todayName],
+      `
+      SELECT 
+        j.jam_mulai, j.jam_selesai, 
+        m.nama_mapel 
+      FROM jadwal_pelajaran j
+      JOIN mata_pelajaran m ON j.mapel_id = m.id
+      WHERE j.kelas_id = ? AND j.hari = ?
+      ORDER BY j.jam_mulai ASC`,
+      [p.kelas_id, namaHariIni],
     );
 
-    // KIRIM RESPONSE TERAKHIR (Dan pastikan hanya satu kali ini saja di luar blok if)
-    return res.json({
+    // 5. Ambil data Poin
+    const [points] = await db.query(
+      `
+      SELECT 
+        COALESCE(SUM(CASE WHEN type = 'achievement' THEN point_amount ELSE 0 END), 0) as total_prestasi,
+        COALESCE(SUM(CASE WHEN type = 'violation' THEN point_amount ELSE 0 END), 0) as total_pelanggaran
+      FROM points WHERE student_id = ?`,
+      [p.student_id],
+    );
+
+    // 6. Ambil Pengumuman
+    const [announcements] = await db.query(
+      "SELECT title, content, category, DATE_FORMAT(created_at, '%d %b') as tanggal FROM announcements ORDER BY created_at DESC LIMIT 5",
+    );
+
+    // Kirim hasil gabungan ke frontend
+    res.json({
       success: true,
       data: {
-        profile: studentInfo[0],
-        points: statsPoin[0],
-        attendance: persentaseHadir,
+        profile: p,
+        points: points[0],
         announcements: announcements,
-        today: todayName,
-        schedules: schedules,
+        schedules: schedules, // SEKARANG BERISI DATA HASIL QUERY
+        attendance: 100,
+        today: namaHariIni,
       },
     });
   } catch (error) {
-    if (!res.headersSent) {
-      return res.status(500).json({ success: false, message: error.message });
-    }
+    console.error("Dashboard Error:", error.message);
+    res.status(500).json({ success: false, message: error.message });
   }
 });
 

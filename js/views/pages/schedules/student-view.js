@@ -1,20 +1,28 @@
 import { SessionManager } from "../../../auth/session.js";
 
 const API_SCHEDULE_BY_ID =
-  "http://localhost:5000/api/dashboard/student-full-by-id";
+  "http://localhost:5000/api/schedules/student-full-by-id";
 
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", async () => {
   const user = SessionManager.getUser();
-
   if (!user) {
     window.location.href = "../../index.html";
     return;
   }
 
-  // Pastikan UI profil tetap terisi (Zahida, OTKP 1)
-  updateProfileUI(user);
+  // AMBIL PROFIL LENGKAP UNTUK SIDEBAR
+  try {
+    const response = await fetch(
+      `http://localhost:5000/api/dashboard/student/${user.id}`,
+    );
+    const result = await response.json();
+    if (result.success) {
+      updateProfileUI(result.data.profile); // Sekarang profile punya info kelas
+    }
+  } catch (error) {
+    console.error("Gagal load profil sidebar");
+  }
 
-  // Panggil data jadwal dari database menggunakan ID Siswa (id: 11)
   fetchSchedules(user.id);
 });
 

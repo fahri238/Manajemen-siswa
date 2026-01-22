@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Waktu pembuatan: 19 Jan 2026 pada 20.37
+-- Waktu pembuatan: 22 Jan 2026 pada 15.00
 -- Versi server: 8.0.30
 -- Versi PHP: 8.2.4
 
@@ -114,7 +114,8 @@ CREATE TABLE `announcements` (
 
 INSERT INTO `announcements` (`id`, `title`, `content`, `category`, `created_at`) VALUES
 (1, 'Ujian Tengah Semester', 'UTS dimulai tanggal 20 Oktober. Siapkan kartu ujian.', 'Akademik', '2026-01-19 18:24:18'),
-(2, 'Pembayaran SPP', 'Batas akhir pembayaran SPP bulan ini adalah tanggal 10.', 'Keuangan', '2026-01-19 18:24:18');
+(4, 'Pembayaran SPP', 'Pembayaran SPP tiap awal bulan', 'Keuangan', '2026-01-21 16:51:27'),
+(6, 'Senam pagi', 'Senam pagi tiap hari jumat', 'Kegiatan', '2026-01-21 17:03:19');
 
 -- --------------------------------------------------------
 
@@ -161,7 +162,7 @@ CREATE TABLE `jadwal_pelajaran` (
 INSERT INTO `jadwal_pelajaran` (`id`, `kelas_id`, `mapel_id`, `guru_id`, `hari`, `jam_mulai`, `jam_selesai`, `created_at`) VALUES
 (5, 8, 3, 2, 'Selasa', '00:12:00', '14:12:00', '2026-01-17 13:43:44'),
 (6, 6, 2, 3, 'Selasa', '07:00:00', '10:00:00', '2026-01-17 13:44:05'),
-(7, 11, 3, 2, 'Selasa', '10:10:00', '01:01:00', '2026-01-17 15:00:44'),
+(7, 11, 3, 2, 'Kamis', '22:10:00', '01:01:00', '2026-01-17 15:00:44'),
 (8, 12, 3, 2, 'Jumat', '00:21:00', '00:12:00', '2026-01-17 15:01:09');
 
 -- --------------------------------------------------------
@@ -293,7 +294,9 @@ INSERT INTO `points` (`id`, `student_id`, `type`, `description`, `point_amount`,
 (7, 9, 'violation', 'ranking 2', 5, '2026-01-17', '2026-01-17 14:54:08'),
 (8, 14, 'violation', 'terlambat', 5, '2026-01-18', '2026-01-18 04:58:22'),
 (9, 11, 'achievement', 'ranking 1', 8, '2026-01-18', '2026-01-18 07:57:46'),
-(10, 11, 'violation', 'terlambat', 3, '2026-01-18', '2026-01-18 07:58:20');
+(10, 11, 'violation', 'terlambat', 3, '2026-01-18', '2026-01-18 07:58:20'),
+(11, 23, 'achievement', 'ranking 1', 8, '2026-01-22', '2026-01-22 13:06:15'),
+(12, 23, 'violation', 'Atribut tidak lengkap', 5, '2026-01-22', '2026-01-22 13:07:15');
 
 -- --------------------------------------------------------
 
@@ -457,8 +460,9 @@ INSERT INTO `siswa` (`id`, `nis`, `nisn`, `nama_lengkap`, `jenis_kelamin`, `temp
 (2, '1002', '0087654321', 'Siti Aminanto', 'P', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 8, NULL, 'aktif', NULL, NULL, 0, 0, '2026-01-15 15:09:51', '2026-01-17 13:39:48'),
 (7, '423', '23423423', 'Muhammad Fahri Ilmi', 'L', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 8, NULL, 'aktif', NULL, NULL, 0, 0, '2026-01-15 15:51:58', '2026-01-17 13:39:41'),
 (9, '1334', '242332', 'Dimas Antariksa', 'L', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 6, NULL, 'aktif', NULL, NULL, 0, 0, '2026-01-17 13:44:41', '2026-01-17 13:50:31'),
-(11, '22342', '', 'Zahida', 'P', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 11, NULL, 'aktif', NULL, NULL, 0, 0, '2026-01-17 14:00:45', '2026-01-17 14:00:45'),
-(14, '4545', '3434', 'Abdullah', 'L', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 12, NULL, 'aktif', NULL, NULL, 0, 0, '2026-01-17 14:04:07', '2026-01-17 15:30:23');
+(11, '1111', '2331', 'Zahida', 'P', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 11, NULL, 'aktif', NULL, NULL, 0, 0, '2026-01-17 14:00:45', '2026-01-22 13:49:39'),
+(14, '4545', '1231', 'Abdullah', 'L', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 12, NULL, 'aktif', NULL, NULL, 0, 0, '2026-01-17 14:04:07', '2026-01-22 13:56:18'),
+(23, '1213', '1231231', 'Bejirlah', 'P', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 11, NULL, 'aktif', NULL, NULL, 0, 0, '2026-01-22 12:58:06', '2026-01-22 13:50:26');
 
 -- --------------------------------------------------------
 
@@ -513,9 +517,9 @@ INSERT INTO `users` (`id`, `username`, `password`, `nama_lengkap`, `jenis_kelami
 (1, 'admin', '123', 'Administrator Utama', 'L', NULL, NULL, NULL, NULL, NULL, NULL, 'admin', NULL, NULL, NULL, NULL, 'aktif', '2026-01-18 05:46:20', '2026-01-15 15:08:26', '2026-01-18 05:46:20'),
 (2, 'guru01', '123', 'Budi Raharjo, S.Pd.', 'L', NULL, NULL, NULL, NULL, NULL, NULL, 'guru', NULL, NULL, NULL, NULL, 'aktif', '2026-01-18 07:12:17', '2026-01-15 16:25:05', '2026-01-18 07:12:17'),
 (3, 'guru02', '123', 'Siti Aminah, M.Pd.', 'L', NULL, NULL, NULL, NULL, NULL, NULL, 'guru', NULL, NULL, NULL, NULL, 'aktif', '2026-01-18 06:13:45', '2026-01-15 16:25:05', '2026-01-18 06:13:45'),
-(7, 'siswa_test', 'password123', 'Ahmad Rizky', 'L', NULL, NULL, NULL, NULL, NULL, NULL, 'siswa', 1, NULL, NULL, NULL, 'aktif', '2026-01-18 07:27:21', '2026-01-18 07:21:22', '2026-01-18 07:27:21'),
-(10, 'zahida', 'password123', 'Zahida', 'L', NULL, NULL, NULL, NULL, NULL, NULL, 'siswa', 11, NULL, NULL, NULL, 'aktif', NULL, '2026-01-18 07:41:57', '2026-01-18 07:41:57'),
-(11, 'abdullah', 'password123', 'Abdullah', 'L', NULL, NULL, NULL, NULL, NULL, NULL, 'siswa', 14, NULL, NULL, NULL, 'aktif', NULL, '2026-01-19 19:13:08', '2026-01-19 19:13:08');
+(12, '1213', '123', 'Bejirlah', 'L', NULL, NULL, NULL, NULL, NULL, NULL, 'siswa', NULL, NULL, NULL, NULL, 'aktif', NULL, '2026-01-22 12:58:06', '2026-01-22 13:50:26'),
+(14, '1111', '123', 'Zahida', 'L', NULL, NULL, NULL, NULL, NULL, NULL, 'siswa', NULL, NULL, NULL, NULL, 'aktif', NULL, '2026-01-22 13:48:53', '2026-01-22 13:49:39'),
+(15, '4545', '123', 'Abdullah', 'L', NULL, NULL, NULL, NULL, NULL, NULL, 'siswa', NULL, NULL, NULL, NULL, 'aktif', NULL, '2026-01-22 13:56:18', '2026-01-22 13:56:18');
 
 --
 -- Indexes for dumped tables
@@ -697,7 +701,7 @@ ALTER TABLE `aktivitas_siswa`
 -- AUTO_INCREMENT untuk tabel `announcements`
 --
 ALTER TABLE `announcements`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
 
 --
 -- AUTO_INCREMENT untuk tabel `jadwal_kelas`
@@ -739,7 +743,7 @@ ALTER TABLE `notifications`
 -- AUTO_INCREMENT untuk tabel `points`
 --
 ALTER TABLE `points`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
 
 --
 -- AUTO_INCREMENT untuk tabel `poin_kategori`
@@ -775,7 +779,7 @@ ALTER TABLE `settings`
 -- AUTO_INCREMENT untuk tabel `siswa`
 --
 ALTER TABLE `siswa`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=22;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=25;
 
 --
 -- AUTO_INCREMENT untuk tabel `tahun_ajaran`
@@ -787,7 +791,7 @@ ALTER TABLE `tahun_ajaran`
 -- AUTO_INCREMENT untuk tabel `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
 
 --
 -- Ketidakleluasaan untuk tabel pelimpahan (Dumped Tables)

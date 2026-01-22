@@ -111,8 +111,8 @@ function renderTable(data) {
                 </td>
 
                 <td><span class="badge ${statusClass}">${
-      item.status
-    }</span></td>
+                  item.status
+                }</span></td>
                 
                 <td style="text-align: right;">
                     <button class="btn-action edit" onclick="window.editStudent(${
@@ -154,17 +154,35 @@ window.handleSaveStudent = async (e) => {
   const id = document.getElementById("student-id").value;
   const isEdit = id !== "";
 
-  // Ambil data form (Pastikan ID HTML sesuai)
+  // Ambil data form
   const data = {
-    nama_lengkap: document.getElementById("nama-lengkap").value,
-    nis: document.getElementById("nis").value,
-    nisn: document.getElementById("nisn").value, // AMBIL NISN
+    nama_lengkap: document.getElementById("nama-lengkap").value.trim(),
+    nis: document.getElementById("nis").value.trim(),
+    nisn: document.getElementById("nisn").value.trim(), // AMBIL NISN
+    password: document.getElementById("student-password").value,
     kelas_id: document.getElementById("kelas-select").value,
-    // Ambil value radio button yang checked
     gender:
       document.querySelector('input[name="gender"]:checked')?.value || "L",
     status: "aktif",
   };
+
+  // --- VALIDASI MANUAL (Frontend) ---
+
+  // 1. Validasi NISN Wajib
+  if (!data.nisn) {
+    if (typeof Notifications !== "undefined")
+      Notifications.error("NISN wajib diisi!");
+    else alert("NISN wajib diisi!");
+    return;
+  }
+
+  // 2. Validasi Password saat Mode Tambah Baru
+  if (!isEdit && !data.password) {
+    if (typeof Notifications !== "undefined")
+      Notifications.error("Password wajib diisi untuk akun login siswa!");
+    else alert("Password wajib diisi!");
+    return;
+  }
 
   const url = isEdit ? `${API_URL}/${id}` : API_URL;
   const method = isEdit ? "PUT" : "POST";
@@ -189,12 +207,17 @@ window.handleSaveStudent = async (e) => {
       else alert(result.message);
 
       window.closeModal();
-      fetchStudents(); // Refresh tabel
+      fetchStudents();
     } else {
-      alert(result.message);
+      // Jika server menolak (misal NISN duplikat)
+      if (typeof Notifications !== "undefined")
+        Notifications.error(result.message);
+      else alert(result.message);
     }
   } catch (error) {
-    alert("Terjadi kesalahan sistem.");
+    if (typeof Notifications !== "undefined")
+      Notifications.error("Terjadi kesalahan sistem.");
+    else alert("Gagal koneksi ke server.");
     console.error(error);
   } finally {
     btnSubmit.innerText = oriText;
@@ -244,7 +267,7 @@ window.deleteStudent = async (id) => {
       "Data poin & absensi juga akan terhapus.",
       async () => {
         await executeDelete(id);
-      }
+      },
     );
   } else {
     if (confirm("Hapus siswa ini?")) await executeDelete(id);
@@ -290,7 +313,7 @@ function filterStudents(keyword) {
   const filtered = allStudents.filter(
     (item) =>
       item.nama_lengkap.toLowerCase().includes(keyword) ||
-      item.nis.includes(keyword)
+      item.nis.includes(keyword),
   );
   renderTable(filtered);
 }

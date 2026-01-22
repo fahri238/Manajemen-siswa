@@ -169,4 +169,48 @@ router.get("/teacher/:teacherId", async (req, res) => {
   }
 });
 
+// siswa
+router.get("/student-full-by-id/:userId", async (req, res) => {
+  try {
+    const { userId } = req.params;
+
+    // 1. Cari kelas_id siswa dengan mencocokkan akun user (username = nis) [cite: 2026-01-21]
+    const sqlGetClass = `
+      SELECT s.kelas_id 
+      FROM siswa s 
+      JOIN users u ON s.nis = u.username 
+      WHERE u.id = ?
+    `;
+    const [siswa] = await db.query(sqlGetClass, [userId]);
+
+    if (siswa.length === 0 || !siswa[0].kelas_id) {
+      return res.json({
+        success: true,
+        data: [],
+        message: "Kelas atau profil siswa tidak ditemukan",
+      });
+    }
+
+    const kelasId = siswa[0].kelas_id;
+
+    // 2. Ambil jadwal pelajaran berdasarkan kelas_id tersebut [cite: 2026-01-21]
+    const sqlSchedules = `
+      SELECT 
+        j.hari, j.jam_mulai, j.jam_selesai, 
+        m.nama_mapel, 
+        u.nama_lengkap AS nama_guru
+      FROM jadwal_pelajaran j
+      JOIN mata_pelajaran m ON j.mapel_id = m.id
+      LEFT JOIN users u ON j.guru_id = u.id
+      WHERE j.kelas_id = ?
+      ORDER BY FIELD(j.hari, 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'), j.jam_mulai ASC
+    `;
+    const [rows] = await db.query(sqlSchedules, [kelasId]);
+
+    res.json({ success: true, data: rows });
+  } catch (error) {
+    console.error("Error Fetch Student Schedule:", error);
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
 module.exports = router;

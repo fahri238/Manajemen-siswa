@@ -83,9 +83,27 @@ router.get("/teacher/:teacherId", async (req, res) => {
 });
 
 // SISWA
-router.get("/student/:studentId", async (req, res) => {
+router.get("/student/:userId", async (req, res) => {
   try {
-    const { studentId } = req.params;
+    const { userId } = req.params; // Ini ID dari tabel 'users'
+
+    // 1. Cari ID Siswa yang asli dengan mencocokkan username (users) dan nis (siswa)
+    const sqlGetStudent = `
+      SELECT s.id 
+      FROM siswa s 
+      JOIN users u ON s.nis = u.username 
+      WHERE u.id = ?
+    `;
+    const [siswa] = await db.query(sqlGetStudent, [userId]);
+
+    // Jika tidak ada data siswa yang cocok dengan akun user ini
+    if (siswa.length === 0) {
+      return res.json({ success: true, data: [] });
+    }
+
+    const realStudentId = siswa[0].id;
+
+    // 2. Sekarang ambil poin menggunakan ID siswa yang asli
     const [points] = await db.query(
       `SELECT 
                 type, 
@@ -95,10 +113,12 @@ router.get("/student/:studentId", async (req, res) => {
              FROM points 
              WHERE student_id = ? 
              ORDER BY incident_date DESC`,
-      [studentId],
+      [realStudentId],
     );
+
     res.json({ success: true, data: points });
   } catch (error) {
+    console.error("Error Points:", error.message);
     res.status(500).json({ success: false, message: error.message });
   }
 });
