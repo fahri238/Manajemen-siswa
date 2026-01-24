@@ -1,37 +1,34 @@
-// api/server.js
 const express = require("express");
 const cors = require("cors");
 const bodyParser = require("body-parser");
 
 const app = express();
-const PORT = 5000; // Backend akan jalan di port 3000
+const PORT = 5000; 
 
-// Middleware
-app.use(cors()); // Biar frontend bisa akses
-app.use(bodyParser.json()); // Biar bisa baca JSON
+app.use(cors()); 
+app.use(bodyParser.json());
 
-// --- ROUTES (Jalur URL) ---
 
 // 1. Test Route
 app.get("/", (req, res) => {
   res.send("Server Siswa Manager Berjalan! 🚀");
 });
 
-// 2. Import Route Siswa (Nanti kita buat filenya)
+// siswa
 const studentRoutes = require("./routes/students");
 app.use("/api/students", studentRoutes);
 
-// 3. Import Route Auth/Login (Nanti kita buat)
+// auth login
 const authRoutes = require("./routes/auth");
 app.use("/api/auth", authRoutes);
 
-const dashboardRoutes = require("./routes/dashboard"); // <--- TAMBAH
-app.use("/api/dashboard", dashboardRoutes); // <--- TAMBAH
+const dashboardRoutes = require("./routes/dashboard"); 
+app.use("/api/dashboard", dashboardRoutes); 
 
-const classRoutes = require("./routes/classes"); // <--- Tambah ini
+const classRoutes = require("./routes/classes"); 
 app.use("/api/classes", classRoutes);
 
-const teacherRoutes = require("./routes/teachers"); // <--- TAMBAH INI
+const teacherRoutes = require("./routes/teachers"); 
 app.use("/api/teachers", teacherRoutes);
 
 // mata pelajaran
@@ -39,24 +36,25 @@ const subjectRoutes = require("./routes/subjects");
 app.use("/api/subjects", subjectRoutes);
 
 // jadwal mata pelajaran
-const scheduleRoutes = require("./routes/schedules"); // <--- TAMBAH
-app.use("/api/schedules", scheduleRoutes); // <--- TAMBAH
+const scheduleRoutes = require("./routes/schedules"); 
+app.use("/api/schedules", scheduleRoutes); 
 
 // point siswa
-const pointsRoutes = require("./routes/points"); // <--- TAMBAH
-app.use("/api/points", pointsRoutes); // <--- TAMBAH
+const pointsRoutes = require("./routes/points"); 
+app.use("/api/points", pointsRoutes); 
 
 // laporan siswa
-const reportRoutes = require("./routes/reports"); // <--- TAMBAH
-app.use("/api/reports", reportRoutes); // <--- TAMBAH
+const reportRoutes = require("./routes/reports"); 
+app.use("/api/reports", reportRoutes); 
 
 // attendance
 app.use("/api/attendance", require("./routes/attendance"));
 
+// announcement
 const announcementRoutes = require('./routes/announcements');
 app.use('/api/announcements', announcementRoutes);
 
-// Jalankan Server
+
 app.listen(PORT, () => {
   console.log(`Server backend running at http://localhost:${PORT}`);
 });
